@@ -1,100 +1,73 @@
 package com.rybka.service;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.rybka.dao.HibernateDAO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.model.Currency;
+import lombok.Data;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
+@Data
 public class ExchangeService {
 
     private static final String API_KEY = "4e0bbdc44fcdf05612fa0882";
 
-    private Double currencyValue;
-    private String baseCurrencyAbbreviation;
-    private String targetCurrencyAbbreviation;
-    private Double amount;
-    private Double total;
+    private Currency currency = new Currency();
 
-    public void loadCurrencyOf(String userBaseCurrencyAbbreviation, String userTargetCurrencyAbbreviation) {
-        String url_str = String.format("https://prime.exchangerate-api.com/v5/%s/latest/%s",
-                API_KEY, userBaseCurrencyAbbreviation);
-
-        try {
-            URL url = new URL(url_str);
-            HttpURLConnection request = (HttpURLConnection) url.openConnection();
-            request.connect();
-
-            JsonParser jp = new JsonParser();
-            JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-            JsonObject jsonobj = root.getAsJsonObject();
-
-            JsonObject jsonObject = jsonobj.get("conversion_rates").getAsJsonObject();
-
-            currencyValue = jsonObject.get(userTargetCurrencyAbbreviation).getAsDouble();
-            baseCurrencyAbbreviation = userBaseCurrencyAbbreviation;
-            targetCurrencyAbbreviation = userTargetCurrencyAbbreviation;
-        } catch (Exception e) {
-            System.out.println("Incorrect exchange data!");
+    public Currency loadCurrencyOf(String userBaseCurrencyAbbreviation, String userTargetCurrencyAbbreviation,
+                                   Double amount) {
+        var response = sendRequest(userBaseCurrencyAbbreviation);
+        var currencyRate = retrieveJsonData(response, userTargetCurrencyAbbreviation);
+        if (currencyRate == 0.0) {
+            System.out.println("Invalid currency abbreviation");
             System.exit(3);
         }
+        return constructDataObject(currencyRate, userBaseCurrencyAbbreviation, userTargetCurrencyAbbreviation, amount);
     }
 
-    public void exchange(Double amount) {
-
-        this.amount = amount;
-        this.total = amount * currencyValue;
+    private Currency constructDataObject(Double currencyRate, String userBaseCurrencyAbbreviation,
+                                         String userTargetCurrencyAbbreviation, Double amount) {
+        currency.setCurrencyValue(currencyRate);
+        currency.setBaseCurrencyAbbreviation(userBaseCurrencyAbbreviation);
+        currency.setTargetCurrencyAbbreviation(userTargetCurrencyAbbreviation);
+        currency.setAmount(amount);
+        currency.setTotal(currency.getAmount() * currency.getCurrencyValue());
+        return currency;
     }
 
-    public void getCurrencyObject() {
-        Currency currency = new Currency(baseCurrencyAbbreviation, targetCurrencyAbbreviation, currencyValue, amount, total);
-        HibernateDAO hibernateDAO = new HibernateDAO();
-        hibernateDAO.save(currency);
-        hibernateDAO.showTableRow();
+    private HttpResponse<String> sendRequest(String userBaseCurrencyAbbreviation) {
+        String url = String.format("https://prime.exchangerate-api.com/v5/%s/latest/%s",
+                API_KEY, userBaseCurrencyAbbreviation);
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .build();
+
+            return client.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException | IOException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+        return null;
     }
 
-    public Double getCurrencyValue() {
-        return currencyValue;
-    }
-
-    public void setCurrencyValue(Double currencyValue) {
-        this.currencyValue = currencyValue;
-    }
-
-    public String getBaseCurrencyAbbreviation() {
-        return baseCurrencyAbbreviation;
-    }
-
-    public void setBaseCurrencyAbbreviation(String baseCurrencyAbbreviation) {
-        this.baseCurrencyAbbreviation = baseCurrencyAbbreviation;
-    }
-
-    public String getTargetCurrencyAbbreviation() {
-        return targetCurrencyAbbreviation;
-    }
-
-    public void setTargetCurrencyAbbreviation(String targetCurrencyAbbreviation) {
-        this.targetCurrencyAbbreviation = targetCurrencyAbbreviation;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
+    private Double retrieveJsonData(HttpResponse<String> response, String userTargetCurrencyAbbreviation) {
+        ObjectMapper mapper = new ObjectMapper();
+        var currencyRate = 0.0;
+        try {
+            JsonNode rootNode = mapper.readTree(response.body());
+            var nameNode = rootNode.path("conversion_rates");
+            currencyRate = nameNode.path(userTargetCurrencyAbbreviation).doubleValue();
+            return currencyRate;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return currencyRate;
     }
 }
