@@ -1,4 +1,4 @@
-package com.rybka;
+package com.rybka.dao;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;

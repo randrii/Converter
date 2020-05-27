@@ -8,16 +8,14 @@
         <property name="connection.username">sa</property>
         <property name="connection.password"></property>
         <property name="dialect">org.hibernate.dialect.H2Dialect</property>
-        <property name="show_sql">true</property>
+        <property name="show_sql">false</property>
         <property name="current_session_context_class">thread</property>
-        <!-- Drop and re-create the database schema on startup -->
-        <property name="hbm2ddl.auto">create-drop</property>
-        <!-- dbcp connection pool configuration -->
+        <property name="hbm2ddl.auto">update</property>
         <property name="hibernate.dbcp.initialSize">5</property>
         <property name="hibernate.dbcp.maxTotal">20</property>
         <property name="hibernate.dbcp.maxIdle">10</property>
         <property name="hibernate.dbcp.minIdle">5</property>
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
-        <mapping class="com.rybka.Currency"/>
+        <mapping class="com.rybka.model.Currency"/>
     </session-factory>
 </hibernate-configuration>
