@@ -1,4 +1,4 @@
-package com.rybka;
+package com.rybka.model;
 
 import javax.persistence.*;
 
@@ -12,7 +12,10 @@ public class Currency {
     private int id;
 
     @Column
-    private String currencyAbbreviation;
+    private String baseCurrencyAbbreviation;
+
+    @Column
+    private String targetCurrencyAbbreviation;
 
     @Column
     private double currencyValue;
@@ -26,9 +29,9 @@ public class Currency {
     public Currency() {
     }
 
-    public Currency(int id, String currencyAbbreviation, double currencyValue, double amount, double total) {
-        this.id = id;
-        this.currencyAbbreviation = currencyAbbreviation;
+    public Currency(String baseCurrencyAbbreviation, String targetCurrencyAbbreviation, double currencyValue, double amount, double total) {
+        this.baseCurrencyAbbreviation = baseCurrencyAbbreviation;
+        this.targetCurrencyAbbreviation = targetCurrencyAbbreviation;
         this.currencyValue = currencyValue;
         this.amount = amount;
         this.total = total;
@@ -42,12 +45,12 @@ public class Currency {
         this.id = id;
     }
 
-    public String getCurrencyAbbreviation() {
-        return currencyAbbreviation;
+    public String getBaseCurrencyAbbreviation() {
+        return baseCurrencyAbbreviation;
     }
 
-    public void setCurrencyAbbreviation(String currencyAbbreviation) {
-        this.currencyAbbreviation = currencyAbbreviation;
+    public void setBaseCurrencyAbbreviation(String currencyAbbreviation) {
+        this.baseCurrencyAbbreviation = currencyAbbreviation;
     }
 
     public double getCurrencyValue() {
@@ -74,11 +77,20 @@ public class Currency {
         this.total = total;
     }
 
+    public String getTargetCurrencyAbbreviation() {
+        return targetCurrencyAbbreviation;
+    }
+
+    public void setTargetCurrencyAbbreviation(String targetCurrencyAbbreviation) {
+        this.targetCurrencyAbbreviation = targetCurrencyAbbreviation;
+    }
+
     @Override
     public String toString() {
         return "Currency{" +
                 "id=" + id +
-                ", currencyAbbreviation='" + currencyAbbreviation + '\'' +
+                ", baseCurrencyAbbreviation='" + baseCurrencyAbbreviation + '\'' +
+                ", targetCurrencyAbbreviation='" + targetCurrencyAbbreviation + '\'' +
                 ", currencyValue=" + currencyValue +
                 ", amount=" + amount +
                 ", total=" + total +
