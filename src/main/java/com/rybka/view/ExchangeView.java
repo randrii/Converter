@@ -1,6 +1,8 @@
 package com.rybka.view;
 
 import com.rybka.dao.HibernateDAO;
+import com.rybka.exception.CurrencyAPICallException;
+import com.rybka.exception.ZeroCurrencyRateException;
 import com.rybka.model.ConvertedCurrency;
 import com.rybka.service.ExchangeService;
 
@@ -16,12 +18,12 @@ public class ExchangeView {
 
         try {
             System.out.print("Insert base currency: ");
-            String userBaseCurrency = scanner.next().toUpperCase();
+            var userBaseCurrency = scanner.next().toUpperCase();
             System.out.print("Enter value: ");
-            Double userValue = scanner.nextDouble();
+            var userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
 
-            String userTargetCurrency = scanner.next().toUpperCase();
+            var userTargetCurrency = scanner.next().toUpperCase();
 
             var currencyObject = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
             var currency = service.calculateTotal(currencyObject, userValue);
@@ -29,8 +31,8 @@ public class ExchangeView {
             hibernateDAO.showTableRow();
 
             showExchange(currency);
-        } catch (Exception e) {
-            System.out.println("Incorrect input!");
+        } catch (ZeroCurrencyRateException | CurrencyAPICallException e) {
+            e.printStackTrace();
         }
     }
 
