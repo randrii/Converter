@@ -1,7 +1,7 @@
 package com.rybka.view;
 
 import com.rybka.dao.HibernateDAO;
-import com.rybka.model.Currency;
+import com.rybka.model.ConvertedCurrency;
 import com.rybka.service.ExchangeService;
 
 import java.util.Scanner;
@@ -16,28 +16,28 @@ public class ExchangeView {
 
         try {
             System.out.print("Insert base currency: ");
-            String userBaseCurrencyAbbreviation = scanner.next().toUpperCase();
+            String userBaseCurrency = scanner.next().toUpperCase();
             System.out.print("Enter value: ");
             Double userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
 
-            String userTargetCurrencyAbbreviation = scanner.next().toUpperCase();
+            String userTargetCurrency = scanner.next().toUpperCase();
 
-            var currencyObject = service.loadCurrencyOf(userBaseCurrencyAbbreviation, userTargetCurrencyAbbreviation, userValue);
-            hibernateDAO.save(currencyObject);
+            var currencyObject = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
+            var currency = service.calculateTotal(currencyObject, userValue);
+            hibernateDAO.save(currency);
             hibernateDAO.showTableRow();
 
-            getResult(currencyObject);
+            showExchange(currency);
         } catch (Exception e) {
             System.out.println("Incorrect input!");
-            System.exit(2);
         }
     }
 
-    private void getResult(Currency currency) {
+    private void showExchange(ConvertedCurrency currency) {
         System.out.println(String.format("%.4f %s -> %.4f %s", currency.getAmount(),
-                currency.getBaseCurrencyAbbreviation(), currency.getTotal(),
-                currency.getTargetCurrencyAbbreviation()));
+                currency.getBase(), currency.getTotal(),
+                currency.getTarget()));
     }
 
 }
