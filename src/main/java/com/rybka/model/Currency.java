@@ -1,11 +1,36 @@
 package com.rybka.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.*;
+import java.util.Date;
 
 @Data
-@AllArgsConstructor
+@NoArgsConstructor
+@Entity
 public class Currency {
-    private String name;
-    private double value;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private int id;
+
+    @Column
+    private String base;
+
+    @Column
+    private String target;
+
+    @Column
+    private double amount;
+
+    @Column
+    private double rate;
+
+    @Column
+    private double total;
+
+    @Column
+    @CreationTimestamp
+    private Date date;
 }

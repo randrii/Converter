@@ -1,9 +1,7 @@
 package com.rybka.view;
 
 import com.rybka.dao.HibernateDAO;
-import com.rybka.exception.CurrencyAPICallException;
-import com.rybka.exception.ZeroCurrencyRateException;
-import com.rybka.model.ConvertedCurrency;
+import com.rybka.model.Currency;
 import com.rybka.service.ExchangeService;
 
 import java.util.Scanner;
@@ -25,18 +23,19 @@ public class ExchangeView {
 
             var userTargetCurrency = scanner.next().toUpperCase();
 
-            var currencyObject = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
-            var currency = service.calculateTotal(currencyObject, userValue);
+            var currencyObject = service.loadCurrencyOf(userBaseCurrency);
+            System.out.println(currencyObject);
+            var currency = service.calculateTotal(currencyObject, userTargetCurrency, userValue);
             hibernateDAO.save(currency);
             hibernateDAO.showTableRow();
 
             showExchange(currency);
-        } catch (ZeroCurrencyRateException | CurrencyAPICallException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Some issues are occurred! Reason: " + e.getMessage());
         }
     }
 
-    private void showExchange(ConvertedCurrency currency) {
+    private void showExchange(Currency currency) {
         System.out.println(String.format("%.4f %s -> %.4f %s", currency.getAmount(),
                 currency.getBase(), currency.getTotal(),
                 currency.getTarget()));

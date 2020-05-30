@@ -1,7 +1,7 @@
 package com.rybka.exception;
 
-public class ZeroCurrencyRateException extends Exception {
-    public ZeroCurrencyRateException(String message) {
-        super(message);
-    }
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+public class ZeroCurrencyRateException extends RuntimeException {
 }
