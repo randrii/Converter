@@ -3,9 +3,11 @@ package com.rybka.view;
 import com.rybka.dao.HibernateDAO;
 import com.rybka.model.Currency;
 import com.rybka.service.ExchangeService;
+import lombok.extern.log4j.Log4j;
 
 import java.util.Scanner;
 
+@Log4j
 public class ExchangeView {
 
     private final Scanner scanner = new Scanner(System.in);
@@ -23,22 +25,33 @@ public class ExchangeView {
 
             var userTargetCurrency = scanner.next().toUpperCase();
 
-            var currencyObject = service.loadCurrencyOf(userBaseCurrency);
-            System.out.println(currencyObject);
-            var currency = service.calculateTotal(currencyObject, userTargetCurrency, userValue);
-            hibernateDAO.save(currency);
+            var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
+            log.info(currencyResponse);
+
+            var total = service.calculateTotal(currencyResponse.getRate(), userValue);
+            var convertedResult = constructConvertedResult(currencyResponse.getBase(),
+                    currencyResponse.getTarget(),
+                    userValue,
+                    currencyResponse.getRate(),
+                    total);
+
+            hibernateDAO.save(convertedResult);
             hibernateDAO.showTableRow();
 
-            showExchange(currency);
+            showExchange(convertedResult);
         } catch (Exception e) {
-            System.out.println("Some issues are occurred! Reason: " + e.getMessage());
+            log.error("Some issues are occurred! Reason: " + e.getMessage());
         }
     }
 
     private void showExchange(Currency currency) {
-        System.out.println(String.format("%.4f %s -> %.4f %s", currency.getAmount(),
+        log.info(String.format("%.4f %s -> %.4f %s", currency.getAmount(),
                 currency.getBase(), currency.getTotal(),
                 currency.getTarget()));
+    }
+
+    private Currency constructConvertedResult(String base, String target, double amount, double rate, double total) {
+        return new Currency(base, target, amount, rate, total);
     }
 
 }

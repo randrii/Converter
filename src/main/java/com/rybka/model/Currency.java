@@ -33,4 +33,12 @@ public class Currency {
     @Column
     @CreationTimestamp
     private Date date;
+
+    public Currency(String base, String target, double amount, double rate, double total) {
+        this.base = base;
+        this.target = target;
+        this.amount = amount;
+        this.rate = rate;
+        this.total = total;
+    }
 }

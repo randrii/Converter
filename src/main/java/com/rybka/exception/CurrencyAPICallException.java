@@ -1,7 +1,7 @@
 package com.rybka.exception;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
 public class CurrencyAPICallException extends RuntimeException {
+    public CurrencyAPICallException(String message) {
+        super(message);
+    }
 }
