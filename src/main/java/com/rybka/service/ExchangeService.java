@@ -1,7 +1,7 @@
 package com.rybka.service;
 
 import com.rybka.exception.MissedBaseCurrencyException;
-import com.rybka.model.CurrencyResponse;
+import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeResponse;
 import lombok.Data;
 
@@ -12,10 +12,10 @@ public class ExchangeService {
 
     private ApiConnectorService connectorService = new ApiConnectorService();
 
-    public CurrencyResponse loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
+    public CurrencyData loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
         var exchangeResponse = connectorService.retrieveRates(userBaseCurrency);
         var targetCurrency = retrieveTargetCurrency(exchangeResponse, userTargetCurrency);
-        return new CurrencyResponse(userBaseCurrency, targetCurrency.getKey(), targetCurrency.getValue());
+        return new CurrencyData(userBaseCurrency, targetCurrency.getKey(), targetCurrency.getValue());
     }
 
     public Double calculateTotal(Double rate, Double amount) {

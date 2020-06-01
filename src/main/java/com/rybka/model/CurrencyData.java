@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CurrencyResponse {
+public class CurrencyData {
     private String base;
     private String target;
     private double rate;

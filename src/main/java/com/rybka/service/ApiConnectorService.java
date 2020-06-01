@@ -1,7 +1,7 @@
 package com.rybka.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.Constant;
+import com.rybka.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import lombok.extern.log4j.Log4j;
@@ -18,8 +18,8 @@ public class ApiConnectorService {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
-        String url = String.format(Constant.URL,
-                Constant.API_KEY, userBaseCurrency);
+        String url = String.format(CurrencyAPIConstants.API_URL,
+                CurrencyAPIConstants.API_KEY, userBaseCurrency);
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -30,7 +30,7 @@ public class ApiConnectorService {
             return mapper.readValue(response.body(), ExchangeResponse.class);
         } catch (Exception exception) {
             log.error("Error while calling Currency API service. Reason: " + exception.getMessage());
-            throw new CurrencyAPICallException("Wrong parameters in Currency API request!");
+            throw new CurrencyAPICallException("Wrong parameters in Currency API request! Reason: " + exception.getMessage());
         }
     }
 }
