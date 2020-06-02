@@ -12,7 +12,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Log4j
-public class ApiConnectorService {
+public class ApiConnectorService implements BaseApiConnectorService {
 
     private final HttpClient client;
     private final ObjectMapper mapper;
