@@ -1,5 +1,6 @@
 package com.rybka.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,6 +26,6 @@ public class ExchangeResponse {
     @JsonProperty("base")
     private String base;
 
-    @JsonProperty("conversion_rates")
+    @JsonAlias({"conversion_rates", "rates"})
     private Map<String, Double> rates;
 }

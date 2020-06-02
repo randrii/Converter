@@ -10,9 +10,9 @@ import java.util.Map;
 @Data
 public class ExchangeService {
 
-    private ApiConnectorService connectorService;
+    private BaseApiConnectorService connectorService;
 
-    public ExchangeService(ApiConnectorService connectorService) {
+    public ExchangeService(BaseApiConnectorService connectorService) {
         this.connectorService = connectorService;
     }
 
