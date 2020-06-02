@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @Entity
-public class Currency {
+public class ExchangeHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -34,7 +34,7 @@ public class Currency {
     @CreationTimestamp
     private Date date;
 
-    public Currency(String base, String target, double amount, double rate, double total) {
+    public ExchangeHistory(String base, String target, double amount, double rate, double total) {
         this.base = base;
         this.target = target;
         this.amount = amount;

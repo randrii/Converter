@@ -1,7 +1,7 @@
 package com.rybka.view;
 
 import com.rybka.dao.HibernateDAO;
-import com.rybka.model.Currency;
+import com.rybka.model.ExchangeHistory;
 import com.rybka.service.ExchangeService;
 import lombok.extern.log4j.Log4j;
 
@@ -44,14 +44,14 @@ public class ExchangeView {
         }
     }
 
-    private void showExchange(Currency currency) {
-        log.info(String.format("%.4f %s -> %.4f %s", currency.getAmount(),
-                currency.getBase(), currency.getTotal(),
-                currency.getTarget()));
+    private void showExchange(ExchangeHistory exchangeHistory) {
+        log.info(String.format("%.4f %s -> %.4f %s", exchangeHistory.getAmount(),
+                exchangeHistory.getBase(), exchangeHistory.getTotal(),
+                exchangeHistory.getTarget()));
     }
 
-    private Currency constructConvertedResult(String base, String target, double amount, double rate, double total) {
-        return new Currency(base, target, amount, rate, total);
+    private ExchangeHistory constructConvertedResult(String base, String target, double amount, double rate, double total) {
+        return new ExchangeHistory(base, target, amount, rate, total);
     }
 
 }
