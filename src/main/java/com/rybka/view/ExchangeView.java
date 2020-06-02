@@ -1,40 +1,63 @@
 package com.rybka.view;
 
+import com.rybka.dao.HibernateDAO;
+import com.rybka.model.CurrencyHistory;
 import com.rybka.service.ExchangeService;
+import lombok.extern.log4j.Log4j;
 
 import java.util.Scanner;
 
+@Log4j
 public class ExchangeView {
 
-    private final Scanner scanner = new Scanner(System.in);
-    private final ExchangeService service = new ExchangeService();
+    private final Scanner scanner;
+    private final ExchangeService service;
+    private final HibernateDAO hibernateDAO;
+
+    public ExchangeView(Scanner scanner, ExchangeService service, HibernateDAO hibernateDAO) {
+        this.scanner = scanner;
+        this.service = service;
+        this.hibernateDAO = hibernateDAO;
+    }
 
     public void showDialog() {
 
         try {
             System.out.print("Insert base currency: ");
-            String userBaseCurrencyAbbreviation = scanner.next().toUpperCase();
+            var userBaseCurrency = scanner.next().toUpperCase();
             System.out.print("Enter value: ");
-            Double userValue = scanner.nextDouble();
+            var userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
 
-            String userTargetCurrencyAbbreviation = scanner.next().toUpperCase();
+            var userTargetCurrency = scanner.next().toUpperCase();
 
-            service.loadCurrencyOf(userBaseCurrencyAbbreviation, userTargetCurrencyAbbreviation);
-            service.exchange(userValue);
-            service.getCurrencyObject();
+            var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
+            log.info(currencyResponse);
 
-            getResult();
+            var total = service.calculateTotal(currencyResponse.getRate(), userValue);
+            var convertedResult = constructConvertedResult(currencyResponse.getBase(),
+                    currencyResponse.getTarget(),
+                    userValue,
+                    currencyResponse.getRate(),
+                    total);
+
+            hibernateDAO.save(convertedResult);
+            hibernateDAO.showTableRow();
+
+            showExchange(convertedResult);
         } catch (Exception e) {
-            System.out.println("Incorrect input!");
-            System.exit(2);
+            log.error("Some issues are occurred! Reason: " + e.getMessage());
         }
     }
 
-    public void getResult() {
-        System.out.println(String.format("%.4f %s -> %.4f %s", service.getAmount(),
-                service.getBaseCurrencyAbbreviation(), service.getTotal(),
-                service.getTargetCurrencyAbbreviation()));
+    private void showExchange(CurrencyHistory currencyHistory) {
+        log.info(String.format("%.4f %s -> %.4f %s", currencyHistory.getAmount(),
+                currencyHistory.getBase(), currencyHistory.getTotal(),
+                currencyHistory.getTarget()));
+    }
+
+    private CurrencyHistory constructConvertedResult(String base, String target, double amount, double rate, double total) {
+        return new CurrencyHistory(base, target, amount, rate, total);
     }
 
 }

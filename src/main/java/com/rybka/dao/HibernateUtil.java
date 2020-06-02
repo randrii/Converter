@@ -1,11 +1,13 @@
 package com.rybka.dao;
 
+import lombok.extern.log4j.Log4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
+@Log4j
 public class HibernateUtil {
     private static StandardServiceRegistry registry;
     private static SessionFactory sessionFactory;
@@ -26,7 +28,7 @@ public class HibernateUtil {
                 sessionFactory = metadata.getSessionFactoryBuilder().build();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Connection error. Reason: " + e.getMessage());
                 if (registry != null) {
                     StandardServiceRegistryBuilder.destroy(registry);
                 }

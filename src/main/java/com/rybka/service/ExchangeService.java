@@ -1,100 +1,36 @@
 package com.rybka.service;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.rybka.dao.HibernateDAO;
-import com.rybka.model.Currency;
+import com.rybka.exception.MissedBaseCurrencyException;
+import com.rybka.model.CurrencyData;
+import com.rybka.model.ExchangeResponse;
+import lombok.Data;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Map;
 
+@Data
 public class ExchangeService {
 
-    private static final String API_KEY = "4e0bbdc44fcdf05612fa0882";
+    private ApiConnectorService connectorService;
 
-    private Double currencyValue;
-    private String baseCurrencyAbbreviation;
-    private String targetCurrencyAbbreviation;
-    private Double amount;
-    private Double total;
-
-    public void loadCurrencyOf(String userBaseCurrencyAbbreviation, String userTargetCurrencyAbbreviation) {
-        String url_str = String.format("https://prime.exchangerate-api.com/v5/%s/latest/%s",
-                API_KEY, userBaseCurrencyAbbreviation);
-
-        try {
-            URL url = new URL(url_str);
-            HttpURLConnection request = (HttpURLConnection) url.openConnection();
-            request.connect();
-
-            JsonParser jp = new JsonParser();
-            JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-            JsonObject jsonobj = root.getAsJsonObject();
-
-            JsonObject jsonObject = jsonobj.get("conversion_rates").getAsJsonObject();
-
-            currencyValue = jsonObject.get(userTargetCurrencyAbbreviation).getAsDouble();
-            baseCurrencyAbbreviation = userBaseCurrencyAbbreviation;
-            targetCurrencyAbbreviation = userTargetCurrencyAbbreviation;
-        } catch (Exception e) {
-            System.out.println("Incorrect exchange data!");
-            System.exit(3);
-        }
+    public ExchangeService(ApiConnectorService connectorService) {
+        this.connectorService = connectorService;
     }
 
-    public void exchange(Double amount) {
-
-        this.amount = amount;
-        this.total = amount * currencyValue;
+    public CurrencyData loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
+        var exchangeResponse = connectorService.retrieveRates(userBaseCurrency);
+        var targetCurrency = retrieveTargetCurrency(exchangeResponse, userTargetCurrency);
+        return new CurrencyData(userBaseCurrency, targetCurrency.getKey(), targetCurrency.getValue());
     }
 
-    public void getCurrencyObject() {
-        Currency currency = new Currency(baseCurrencyAbbreviation, targetCurrencyAbbreviation, currencyValue, amount, total);
-        HibernateDAO hibernateDAO = new HibernateDAO();
-        hibernateDAO.save(currency);
-        hibernateDAO.showTableRow();
+    public Double calculateTotal(Double rate, Double amount) {
+        return rate * amount;
     }
 
-    public Double getCurrencyValue() {
-        return currencyValue;
-    }
+    private Map.Entry<String, Double> retrieveTargetCurrency(ExchangeResponse exchangeResponse, String userTargetCurrency) {
 
-    public void setCurrencyValue(Double currencyValue) {
-        this.currencyValue = currencyValue;
-    }
-
-    public String getBaseCurrencyAbbreviation() {
-        return baseCurrencyAbbreviation;
-    }
-
-    public void setBaseCurrencyAbbreviation(String baseCurrencyAbbreviation) {
-        this.baseCurrencyAbbreviation = baseCurrencyAbbreviation;
-    }
-
-    public String getTargetCurrencyAbbreviation() {
-        return targetCurrencyAbbreviation;
-    }
-
-    public void setTargetCurrencyAbbreviation(String targetCurrencyAbbreviation) {
-        this.targetCurrencyAbbreviation = targetCurrencyAbbreviation;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Double amount) {
-        this.amount = amount;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public void setTotal(Double total) {
-        this.total = total;
+        return exchangeResponse.getRates().entrySet().stream()
+                .filter(item -> userTargetCurrency.equals(item.getKey()))
+                .findFirst()
+                .orElseThrow(() -> new MissedBaseCurrencyException("Target currency not found!"));
     }
 }
