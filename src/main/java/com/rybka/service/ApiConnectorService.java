@@ -14,8 +14,13 @@ import java.net.http.HttpResponse;
 @Log4j
 public class ApiConnectorService {
 
-    private final HttpClient client = HttpClient.newHttpClient();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final HttpClient client;
+    private final ObjectMapper mapper;
+
+    public ApiConnectorService(HttpClient client, ObjectMapper mapper) {
+        this.client = client;
+        this.mapper = mapper;
+    }
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
         String url = String.format(CurrencyAPIConstants.API_URL,
@@ -30,7 +35,7 @@ public class ApiConnectorService {
             return mapper.readValue(response.body(), ExchangeResponse.class);
         } catch (Exception exception) {
             log.error("Error while calling Currency API service. Reason: " + exception.getMessage());
-            throw new CurrencyAPICallException("Wrong parameters in Currency API request! Reason: " + exception.getMessage());
+            throw new CurrencyAPICallException("An error appears while calling Currency API. Reason: " + exception.getMessage());
         }
     }
 }

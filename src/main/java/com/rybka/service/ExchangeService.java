@@ -10,7 +10,11 @@ import java.util.Map;
 @Data
 public class ExchangeService {
 
-    private ApiConnectorService connectorService = new ApiConnectorService();
+    private ApiConnectorService connectorService;
+
+    public ExchangeService(ApiConnectorService connectorService) {
+        this.connectorService = connectorService;
+    }
 
     public CurrencyData loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
         var exchangeResponse = connectorService.retrieveRates(userBaseCurrency);

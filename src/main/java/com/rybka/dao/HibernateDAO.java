@@ -1,6 +1,6 @@
 package com.rybka.dao;
 
-import com.rybka.model.Currency;
+import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -12,10 +12,10 @@ public class HibernateDAO {
 
     private Transaction transaction;
 
-    public void save(Currency currency) {
+    public void save(CurrencyHistory currencyHistory) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            session.save(currency);
+            session.save(currencyHistory);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
@@ -28,7 +28,7 @@ public class HibernateDAO {
 
     public void showTableRow() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<Currency> currencies = session.createQuery("from Currency", Currency.class).list();
+            List<CurrencyHistory> currencies = session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
             currencies.forEach(c -> log.info(c.toString()));
         } catch (Exception e) {
             if (transaction != null) {
