@@ -2,6 +2,6 @@ package com.rybka.service;
 
 import com.rybka.model.ExchangeResponse;
 
-public interface BaseApiConnectorService {
+public interface BaseCurrencyExchangeConnector {
     ExchangeResponse retrieveRates(String userBaseCurrency);
 }

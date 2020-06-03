@@ -1,28 +1,22 @@
 package com.rybka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.dao.HibernateDAO;
-import com.rybka.service.ExchangeRate_ApiConnectorService;
-import com.rybka.service.BaseApiConnectorService;
+import com.rybka.service.BaseCurrencyExchangeConnector;
 import com.rybka.service.ExchangeService;
-import com.rybka.service.ExchangeRatesApiConnectorService;
+import com.rybka.service.ExchangeRateBaseCurrencyExchangeConnector;
 import com.rybka.view.ExchangeView;
+import coresearch.cvurl.io.request.CVurl;
 
-import java.net.http.HttpClient;
 import java.util.Scanner;
 
 public class Application {
     public static void main(String[] args) {
 
-//        BaseApiConnectorService apiConnectorService = new ExchangeRate_ApiConnectorService(
-//                HttpClient.newHttpClient(),
-//                new ObjectMapper());
-
-        BaseApiConnectorService apiConnectorService = new ExchangeRatesApiConnectorService(new ObjectMapper());
+        BaseCurrencyExchangeConnector baseCurrencyExchangeConnector = new ExchangeRateBaseCurrencyExchangeConnector(new CVurl());
 
         ExchangeView view = new ExchangeView(
                 new Scanner(System.in),
-                new ExchangeService(apiConnectorService),
+                new ExchangeService(baseCurrencyExchangeConnector),
                 new HibernateDAO());
 
         while (true) {
