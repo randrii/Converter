@@ -12,12 +12,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Log4j
-public class PrimeExchangeRateBaseCurrencyExchangeConnector implements BaseCurrencyExchangeConnector {
+public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
 
     private final HttpClient client;
     private final ObjectMapper mapper;
 
-    public PrimeExchangeRateBaseCurrencyExchangeConnector(HttpClient client, ObjectMapper mapper) {
+    public PrimeExchangeRateConnector(HttpClient client, ObjectMapper mapper) {
         this.client = client;
         this.mapper = mapper;
     }
