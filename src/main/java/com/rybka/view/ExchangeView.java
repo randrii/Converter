@@ -32,7 +32,6 @@ public class ExchangeView {
             var userTargetCurrency = scanner.next().toUpperCase();
 
             var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
-            log.info(currencyResponse);
 
             var total = service.calculateTotal(currencyResponse.getRate(), userValue);
             var convertedResult = constructConvertedResult(currencyResponse.getBase(),
