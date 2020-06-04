@@ -1,5 +1,6 @@
 package com.rybka.dao;
 
+import com.rybka.exception.DBConnectionException;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 import org.hibernate.Session;
@@ -26,15 +27,13 @@ public class HibernateDAO {
         }
     }
 
-    public void showTableRow() {
+    public List<CurrencyHistory> select() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            List<CurrencyHistory> currencies = session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
-            currencies.forEach(c -> log.info(c.toString()));
+            return session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
+            transaction.rollback();
             log.error("Error while retrieving data from DB. Reason: " + e.getMessage());
+            throw new DBConnectionException("Unable to access to DB. Reason: " + e.getMessage());
         }
     }
 }

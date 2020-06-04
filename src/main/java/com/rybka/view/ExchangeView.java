@@ -1,8 +1,12 @@
 package com.rybka.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.dao.HibernateDAO;
 import com.rybka.model.CurrencyHistory;
+import com.rybka.service.CSVExportService;
+import com.rybka.service.ConsoleExportService;
 import com.rybka.service.ExchangeService;
+import com.rybka.service.JSONExportService;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Scanner;
@@ -28,8 +32,13 @@ public class ExchangeView {
             System.out.print("Enter value: ");
             var userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
-
             var userTargetCurrency = scanner.next().toUpperCase();
+
+            int userExportChoice;
+            do {
+                System.out.print("Choose way to export data (1-Console, 2-CSV file, 3-Json file): ");
+                userExportChoice = scanner.nextInt();
+            } while (userExportChoice < 1 || userExportChoice > 3);
 
             var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
 
@@ -41,9 +50,24 @@ public class ExchangeView {
                     total);
 
             hibernateDAO.save(convertedResult);
-            hibernateDAO.showTableRow();
+            var history = hibernateDAO.select();
 
             showExchange(convertedResult);
+
+            switch (userExportChoice) {
+                case 1:
+                    new ConsoleExportService().export(history);
+                    break;
+                case 2:
+                    new CSVExportService().export(history, "test.csv");
+                    break;
+                case 3:
+                    new JSONExportService(new ObjectMapper()).export(history, "test.json");
+                    break;
+                default:
+                    break;
+            }
+
         } catch (Exception e) {
             log.error("Some issues are occurred! Reason: " + e.getMessage());
         }
