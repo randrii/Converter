@@ -1,7 +1,9 @@
 package com.rybka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rybka.config.PropertyInfo;
 import com.rybka.dao.HibernateDAO;
+import com.rybka.service.BaseCurrencyExchangeConnector;
 import com.rybka.service.ExchangeRateConnector;
 import com.rybka.service.ExchangeService;
 import com.rybka.service.PrimeExchangeRateConnector;
@@ -10,22 +12,16 @@ import coresearch.cvurl.io.request.CVurl;
 
 import java.net.http.HttpClient;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
+
     public static void main(String[] args) {
 
-        var reader = new PropertyReader(
-                new HashMap<>() {{
-                    put("PrimeExchangeRate", new PrimeExchangeRateConnector(
-                            HttpClient.newHttpClient(),
-                            new ObjectMapper()));
-                    put("ExchangeRate", new ExchangeRateConnector(
-                            new CVurl()));
-                }});
-
-        var source = reader.getPropertyValue();
-        var connector = reader.getObjectOf(source);
+        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_NAME).getProperties();
+        var currencyConnectorsMap = buildMap();
+        var connector = currencyConnectorsMap.get(reader.getProperty(PropertyInfo.EXCHANGE_SOURCE));
 
         ExchangeView view = new ExchangeView(
                 new Scanner(System.in),
@@ -35,5 +31,15 @@ public class Application {
         while (true) {
             view.showDialog();
         }
+    }
+
+    public static Map<String, BaseCurrencyExchangeConnector> buildMap() {
+        return new HashMap<>() {{
+            put("PrimeExchangeRate", new PrimeExchangeRateConnector(
+                    HttpClient.newHttpClient(),
+                    new ObjectMapper()));
+            put("ExchangeRate", new ExchangeRateConnector(
+                    new CVurl()));
+        }};
     }
 }
