@@ -27,7 +27,7 @@ public class HibernateDAO {
         }
     }
 
-    public List<CurrencyHistory> select() {
+    public List<CurrencyHistory> retrieveCurrencyHistory() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
         } catch (Exception e) {
