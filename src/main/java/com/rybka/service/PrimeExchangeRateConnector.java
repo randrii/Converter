@@ -1,7 +1,7 @@
 package com.rybka.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.CurrencyAPIConstants;
+import com.rybka.config.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import lombok.extern.log4j.Log4j;

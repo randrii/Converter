@@ -1,6 +1,6 @@
 package com.rybka.service;
 
-import com.rybka.CurrencyAPIConstants;
+import com.rybka.config.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import coresearch.cvurl.io.request.CVurl;
