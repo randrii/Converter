@@ -28,7 +28,6 @@ public class ExchangeView {
             System.out.print("Enter value: ");
             var userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
-
             var userTargetCurrency = scanner.next().toUpperCase();
 
             var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
@@ -41,9 +40,9 @@ public class ExchangeView {
                     total);
 
             hibernateDAO.save(convertedResult);
-            hibernateDAO.showTableRow();
 
             showExchange(convertedResult);
+
         } catch (Exception e) {
             log.error("Some issues are occurred! Reason: " + e.getMessage());
         }
