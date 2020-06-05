@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.rybka.config.PropertyInfo;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
@@ -16,9 +15,11 @@ import java.util.List;
 @Log4j
 public class CSVExportService implements ExportService {
     private final CsvMapper csvMapper;
+    private final FileWriter fileWriter;
 
-    public CSVExportService(CsvMapper csvMapper) {
+    public CSVExportService(CsvMapper csvMapper, FileWriter fileWriter) {
         this.csvMapper = csvMapper;
+        this.fileWriter = fileWriter;
     }
 
     public void export(List<CurrencyHistory> histories) {
@@ -26,9 +27,7 @@ public class CSVExportService implements ExportService {
         CsvSchema csvSchema = csvMapper.schemaFor(CurrencyHistory.class).withHeader();
         ObjectWriter writer = csvMapper.writer(csvSchema.withLineSeparator("\n"));
 
-        try (var fileWriter = new FileWriter(PropertyInfo.RESOURCE_PATH
-                + new RandomNameService().generateFileName()
-                + PropertyInfo.CSV_SUFFIX)) {
+        try (fileWriter) {
             writer.writeValue(fileWriter, histories);
 
             log.info("Exporting history to CSV file.");

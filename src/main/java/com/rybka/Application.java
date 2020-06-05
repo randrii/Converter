@@ -1,7 +1,6 @@
 package com.rybka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.rybka.config.PropertyInfo;
 import com.rybka.dao.HibernateDAO;
 import com.rybka.service.BaseCurrencyExchangeConnector;
@@ -34,9 +33,7 @@ public class Application {
         ExchangeView view = new ExchangeView(
                 new Scanner(System.in),
                 new ExchangeService(connector),
-                new HibernateDAO(),
-                objectMapper,
-                new CsvMapper()
+                new HibernateDAO()
         );
 
         while (true) {
