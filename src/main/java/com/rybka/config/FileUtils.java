@@ -12,7 +12,7 @@ public class FileUtils {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat(FILE_NAME_PATTERN);
 
     public static String generateFileName(String fileSuffix) {
-        LocalDateTime DATE_TIME = LocalDateTime.now();
-        return DATE_FORMAT.format(DATE_TIME) + fileSuffix;
+        LocalDateTime dateTime = LocalDateTime.now();
+        return DATE_FORMAT.format(dateTime) + fileSuffix;
     }
 }
