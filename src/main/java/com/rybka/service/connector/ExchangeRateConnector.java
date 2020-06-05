@@ -1,4 +1,4 @@
-package com.rybka.service;
+package com.rybka.service.connector;
 
 import com.rybka.config.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;

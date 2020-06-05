@@ -1,4 +1,4 @@
-package com.rybka.service;
+package com.rybka.service.export;
 
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;

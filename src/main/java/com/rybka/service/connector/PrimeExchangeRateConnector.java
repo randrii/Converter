@@ -1,4 +1,4 @@
-package com.rybka.service;
+package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.config.CurrencyAPIConstants;
