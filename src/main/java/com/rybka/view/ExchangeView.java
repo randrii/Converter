@@ -1,8 +1,8 @@
 package com.rybka.view;
 
-import com.rybka.dao.HibernateDAO;
+import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.model.CurrencyHistory;
-import com.rybka.service.ExchangeService;
+import com.rybka.service.exchange.ExchangeService;
 import lombok.extern.log4j.Log4j;
 
 import java.util.Scanner;
@@ -12,12 +12,12 @@ public class ExchangeView {
 
     private final Scanner scanner;
     private final ExchangeService service;
-    private final HibernateDAO hibernateDAO;
+    private final CurrencyHistoryDAO currencyHistoryDAO;
 
-    public ExchangeView(Scanner scanner, ExchangeService service, HibernateDAO hibernateDAO) {
+    public ExchangeView(Scanner scanner, ExchangeService service, CurrencyHistoryDAO currencyHistoryDAO) {
         this.scanner = scanner;
         this.service = service;
-        this.hibernateDAO = hibernateDAO;
+        this.currencyHistoryDAO = currencyHistoryDAO;
     }
 
     public void showDialog() {
@@ -39,7 +39,7 @@ public class ExchangeView {
                     currencyResponse.getRate(),
                     total);
 
-            hibernateDAO.save(convertedResult);
+            currencyHistoryDAO.save(convertedResult);
 
             showExchange(convertedResult);
 

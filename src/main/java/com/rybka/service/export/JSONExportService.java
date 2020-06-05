@@ -1,13 +1,10 @@
-package com.rybka.service;
+package com.rybka.service.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.config.FileUtils;
-import com.rybka.config.PropertyInfo;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;

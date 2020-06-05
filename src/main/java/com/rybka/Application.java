@@ -2,11 +2,11 @@ package com.rybka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.config.PropertyInfo;
-import com.rybka.dao.HibernateDAO;
-import com.rybka.service.BaseCurrencyExchangeConnector;
-import com.rybka.service.ExchangeRateConnector;
-import com.rybka.service.ExchangeService;
-import com.rybka.service.PrimeExchangeRateConnector;
+import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.service.connector.BaseCurrencyExchangeConnector;
+import com.rybka.service.connector.ExchangeRateConnector;
+import com.rybka.service.exchange.ExchangeService;
+import com.rybka.service.connector.PrimeExchangeRateConnector;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
 
@@ -20,8 +20,8 @@ public class Application {
 
         var objectMapper = new ObjectMapper();
 
-        BaseCurrencyExchangeConnector primeExchangeRateConnector = new PrimeExchangeRateConnector(HttpClient.newHttpClient(), objectMapper);
-        BaseCurrencyExchangeConnector exchangeRateConnectorConnector = new ExchangeRateConnector(new CVurl());
+        var primeExchangeRateConnector = new PrimeExchangeRateConnector(HttpClient.newHttpClient(), objectMapper);
+        var exchangeRateConnectorConnector = new ExchangeRateConnector(new CVurl());
 
         var exchangeSourceMap = Map.of(
                 PropertyInfo.PROPERTY_EXCHANGE_KEY, exchangeRateConnectorConnector,
@@ -33,7 +33,7 @@ public class Application {
         ExchangeView view = new ExchangeView(
                 new Scanner(System.in),
                 new ExchangeService(connector),
-                new HibernateDAO()
+                new CurrencyHistoryDAO()
         );
 
         while (true) {
