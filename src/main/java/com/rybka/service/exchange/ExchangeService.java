@@ -1,8 +1,9 @@
-package com.rybka.service;
+package com.rybka.service.exchange;
 
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeResponse;
+import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import lombok.Data;
 
 import java.util.Map;

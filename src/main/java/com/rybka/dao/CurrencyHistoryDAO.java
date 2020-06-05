@@ -9,7 +9,7 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 @Log4j
-public class HibernateDAO {
+public class CurrencyHistoryDAO {
 
     private Transaction transaction;
 
@@ -27,7 +27,7 @@ public class HibernateDAO {
         }
     }
 
-    public List<CurrencyHistory> retrieveCurrencyHistory() {
+    public List<CurrencyHistory> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
         } catch (Exception e) {
