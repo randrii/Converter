@@ -15,11 +15,13 @@ import java.util.List;
 @Log4j
 public class CSVExportService implements ExportService {
     private final CsvMapper csvMapper;
-    private final FileWriter fileWriter;
+    private final String folder;
+    private final String fileName;
 
-    public CSVExportService(CsvMapper csvMapper, FileWriter fileWriter) {
+    public CSVExportService(CsvMapper csvMapper, String folder, String fileName) {
         this.csvMapper = csvMapper;
-        this.fileWriter = fileWriter;
+        this.folder = folder;
+        this.fileName = fileName;
     }
 
     public void export(List<CurrencyHistory> histories) {
@@ -27,9 +29,8 @@ public class CSVExportService implements ExportService {
         CsvSchema csvSchema = csvMapper.schemaFor(CurrencyHistory.class).withHeader();
         ObjectWriter writer = csvMapper.writer(csvSchema.withLineSeparator("\n"));
 
-        try (fileWriter) {
+        try (var fileWriter = new FileWriter(folder + fileName)) {
             writer.writeValue(fileWriter, histories);
-
             log.info("Exporting history to CSV file.");
         } catch (IOException e) {
             log.error("Unable to export to CSV file. Reason: " + e.getMessage());

@@ -20,7 +20,6 @@ public class PropertyReader {
 
             return properties;
         } catch (IOException e) {
-            e.printStackTrace();
             throw new InvalidPropertyException("Unable to get properties from file. Reason: " + e.getMessage());
         }
     }

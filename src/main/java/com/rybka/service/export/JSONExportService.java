@@ -12,15 +12,17 @@ import java.util.List;
 @Log4j
 public class JSONExportService implements ExportService {
     private final ObjectMapper objectMapper;
-    private final FileWriter fileWriter;
+    private final String folder;
+    private final String fileName;
 
-    public JSONExportService(ObjectMapper objectMapper, FileWriter fileWriter) {
+    public JSONExportService(ObjectMapper objectMapper, String folder, String fileName) {
         this.objectMapper = objectMapper;
-        this.fileWriter = fileWriter;
+        this.folder = folder;
+        this.fileName = fileName;
     }
 
     public void export(List<CurrencyHistory> histories) {
-        try (fileWriter) {
+        try (var fileWriter = new FileWriter(folder + fileName)) {
             fileWriter.write(objectMapper.writeValueAsString(histories));
             fileWriter.flush();
 

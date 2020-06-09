@@ -3,8 +3,10 @@ package com.rybka.view;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.model.CurrencyHistory;
 import com.rybka.service.exchange.ExchangeService;
+import com.rybka.service.export.ExportService;
 import lombok.extern.log4j.Log4j;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 @Log4j
@@ -13,11 +15,13 @@ public class ExchangeView {
     private final Scanner scanner;
     private final ExchangeService service;
     private final CurrencyHistoryDAO currencyHistoryDAO;
+    private final ExportService exportService;
 
-    public ExchangeView(Scanner scanner, ExchangeService service, CurrencyHistoryDAO currencyHistoryDAO) {
+    public ExchangeView(Scanner scanner, ExchangeService service, CurrencyHistoryDAO currencyHistoryDAO, ExportService exportService) {
         this.scanner = scanner;
         this.service = service;
         this.currencyHistoryDAO = currencyHistoryDAO;
+        this.exportService = exportService;
     }
 
     public void showDialog() {
@@ -43,8 +47,13 @@ public class ExchangeView {
 
             showExchange(convertedResult);
 
-        } catch (Exception e) {
-            log.error("Some issues are occurred! Reason: " + e.getMessage());
+            exportService.export(currencyHistoryDAO.findAll());
+        } catch (NullPointerException exception) {
+            log.error("Invalid currency for exchange.");
+        } catch (InputMismatchException exception) {
+            log.error("Please enter valid value for exchange.");
+        } catch (Exception exception) {
+            log.error("Some issues are occurred! Reason: " + exception.getMessage());
         }
     }
 
