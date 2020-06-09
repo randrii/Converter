@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
-import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.connector.ExchangeRateConnector;
 import com.rybka.service.exchange.ExchangeService;
 import com.rybka.service.connector.PrimeExchangeRateConnector;
@@ -16,7 +15,6 @@ import coresearch.cvurl.io.request.CVurl;
 
 import java.net.http.HttpClient;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Application {
@@ -33,8 +31,8 @@ public class Application {
                 ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector);
 
         var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_NAME).getProperties();
-        var connector = Optional.ofNullable(exchangeSourceMap.get(reader.getProperty(PropertyInfo.PROPERTY_EXCHANGE_SOURCE))).orElseThrow(() ->
-                new InvalidPropertyException("Unsupported exchange source!"));
+        var connector = MapSearchUtil.retrieveMapValue(exchangeSourceMap, reader.getProperty(
+                PropertyInfo.PROPERTY_EXCHANGE_SOURCE));
 
         var exportFolder = reader.getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER);
         var exportFileName = FileUtils.generateFileName(reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE));
@@ -48,10 +46,8 @@ public class Application {
                 ExportType.CSV.getType(), csvExportService,
                 ExportType.JSON.getType(), jsonExportService);
 
-        var exportService = MapSearchUtil.retrieveMapValue(
-                exportConfigMap,
-                reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE),
-                new InvalidPropertyException("Unable to find specified export type or it isn't supported.")).getValue();
+        var exportService = MapSearchUtil.retrieveMapValue(exportConfigMap, reader.getProperty(
+                PropertyInfo.PROPERTY_EXPORT_TYPE));
 
         ExchangeView view = new ExchangeView(
                 new Scanner(System.in),

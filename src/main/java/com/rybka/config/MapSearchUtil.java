@@ -1,12 +1,13 @@
 package com.rybka.config;
 
+import com.rybka.exception.InvalidPropertyException;
+
 import java.util.Map;
+import java.util.Optional;
 
 public class MapSearchUtil {
-    public static <T> Map.Entry<String, T> retrieveMapValue(Map<String, T> map, String searchItem, RuntimeException runtimeException) {
-        return map.entrySet().stream()
-                .filter(item -> searchItem.equals(item.getKey()))
-                .findFirst()
-                .orElseThrow(() -> runtimeException);
+    public static <T> T retrieveMapValue(Map<String, T> map, String searchItem) {
+        return Optional.ofNullable(map.get(searchItem))
+                .orElseThrow(() -> new InvalidPropertyException("Unsupported export type or exchange source."));
     }
 }
