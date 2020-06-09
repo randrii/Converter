@@ -1,5 +1,6 @@
 package com.rybka.service.exchange;
 
+import com.rybka.config.MapSearchUtil;
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeResponse;
@@ -29,9 +30,7 @@ public class ExchangeService {
 
     private Map.Entry<String, Double> retrieveTargetCurrency(ExchangeResponse exchangeResponse, String userTargetCurrency) {
 
-        return exchangeResponse.getRates().entrySet().stream()
-                .filter(item -> userTargetCurrency.equals(item.getKey()))
-                .findFirst()
-                .orElseThrow(() -> new MissedBaseCurrencyException("Target currency not found!"));
+        return MapSearchUtil.retrieveMapValue(exchangeResponse.getRates(), userTargetCurrency,
+                new MissedBaseCurrencyException("Target currency not found!"));
     }
 }
