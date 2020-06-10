@@ -2,6 +2,7 @@ package com.rybka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.rybka.command.ConvertCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.service.connector.ExchangeRateConnector;
@@ -50,14 +51,16 @@ public class Application {
                 PropertyInfo.PROPERTY_EXPORT_TYPE));
 
         ExchangeView view = new ExchangeView(
-                new Scanner(System.in),
-                new ExchangeService(connector),
-                new CurrencyHistoryDAO(),
-                exportService
+                new ConvertCommand(
+                        new Scanner(System.in),
+                        new ExchangeService(connector),
+                        new CurrencyHistoryDAO(),
+                        exportService
+                )
         );
 
         while (true) {
-            view.showDialog();
+            view.showView();
         }
     }
 
