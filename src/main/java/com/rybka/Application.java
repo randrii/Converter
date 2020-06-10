@@ -54,10 +54,7 @@ public class Application {
                 new ConvertCommand(
                         new Scanner(System.in),
                         new ExchangeService(connector),
-                        new CurrencyHistoryDAO(),
-                        exportService
-                )
-        );
+                        new CurrencyHistoryDAO()));
 
         while (true) {
             view.showView();

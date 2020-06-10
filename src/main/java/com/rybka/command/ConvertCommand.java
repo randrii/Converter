@@ -1,9 +1,11 @@
 package com.rybka.command;
 
 import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.exception.CurrencyAPICallException;
+import com.rybka.exception.DBConnectionException;
 import com.rybka.model.CurrencyHistory;
+import com.rybka.model.UserConvertData;
 import com.rybka.service.exchange.ExchangeService;
-import com.rybka.service.export.ExportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
@@ -16,29 +18,22 @@ public class ConvertCommand implements Command {
     private final Scanner scanner;
     private final ExchangeService service;
     private final CurrencyHistoryDAO currencyHistoryDAO;
-    private final ExportService exportService;
-
-    private String userBaseCurrency;
-    private String userTargetCurrency;
-    private double userValue;
 
     @Override
     public void execute() {
         try {
             System.out.print("Insert base currency: ");
-            userBaseCurrency = scanner.next().toUpperCase();
+            var userBaseCurrency = scanner.next().toUpperCase();
             System.out.print("Enter value: ");
-            userValue = scanner.nextDouble();
+            var userValue = scanner.nextDouble();
             System.out.print("Insert target currency: ");
-            userTargetCurrency = scanner.next().toUpperCase();
+            var userTargetCurrency = scanner.next().toUpperCase();
 
-            var convertedResult = convert();
+            var userConvertData = readUserParameters(userBaseCurrency, userTargetCurrency, userValue);
+            var convertedResult = convert(userConvertData);
+
             print(convertedResult);
             save(convertedResult);
-
-            exportService.export(currencyHistoryDAO.findAll());
-        } catch (NullPointerException exception) {
-            log.error("Invalid currency for exchange.");
         } catch (InputMismatchException exception) {
             log.error("Please enter valid value for exchange.");
         } catch (Exception exception) {
@@ -46,13 +41,15 @@ public class ConvertCommand implements Command {
         }
     }
 
-    private CurrencyHistory convert() {
-        var currencyResponse = service.loadCurrencyOf(userBaseCurrency, userTargetCurrency);
-        var total = service.calculateTotal(currencyResponse.getRate(), userValue);
+    private CurrencyHistory convert(UserConvertData userConvertData) {
+        if (service == null) throw new CurrencyAPICallException("Unable to call exchange service.");
+
+        var currencyResponse = service.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
+        var total = service.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
 
         return constructConvertedResult(currencyResponse.getBase(),
                 currencyResponse.getTarget(),
-                userValue,
+                userConvertData.getUserValue(),
                 currencyResponse.getRate(),
                 total);
     }
@@ -62,7 +59,12 @@ public class ConvertCommand implements Command {
     }
 
     private void save(CurrencyHistory currencyHistory) {
+        if (currencyHistoryDAO == null) throw new DBConnectionException("Unable to connect to Database.");
         currencyHistoryDAO.save(currencyHistory);
+    }
+
+    private UserConvertData readUserParameters(String userBaseCurrency, String userTargetCurrency, double userValue) {
+        return new UserConvertData(userBaseCurrency, userTargetCurrency, userValue);
     }
 
     private void showExchange(CurrencyHistory currencyHistory) {
