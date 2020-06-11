@@ -11,7 +11,6 @@ import java.util.List;
 
 @Log4j
 public class CurrencyHistoryDAO {
-
     private Transaction transaction;
 
     public void save(CurrencyHistory currencyHistory) {
@@ -37,11 +36,11 @@ public class CurrencyHistoryDAO {
         }
     }
 
-    public List<CurrencyHistory> findFiveRecords() {
+    public List<CurrencyHistory> findAllLimit(int limit) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             var query = session.createQuery(QueryConstants.SELECT_QUERY + QueryConstants.LIMIT_SELECT_QUERY,
                     CurrencyHistory.class);
-            query.setMaxResults(QueryConstants.LIMIT_ROW_NUMBER);
+            query.setMaxResults(limit);
             return query.list();
         } catch (Exception e) {
             transaction.rollback();

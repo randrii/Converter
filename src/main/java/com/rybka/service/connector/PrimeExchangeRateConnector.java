@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.config.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
 import java.net.URI;
@@ -12,15 +13,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Log4j
+@RequiredArgsConstructor
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
-
     private final HttpClient client;
     private final ObjectMapper mapper;
-
-    public PrimeExchangeRateConnector(HttpClient client, ObjectMapper mapper) {
-        this.client = client;
-        this.mapper = mapper;
-    }
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
         String url = String.format(CurrencyAPIConstants.PRIME_EXCHANGE_RATE_API_URL,
