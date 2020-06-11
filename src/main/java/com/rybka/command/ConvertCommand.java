@@ -1,8 +1,8 @@
 package com.rybka.command;
 
 import com.rybka.dao.CurrencyHistoryDAO;
-import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.exception.DBConnectionException;
+import com.rybka.exception.IncorrectUserDataException;
 import com.rybka.model.CurrencyHistory;
 import com.rybka.model.UserConvertData;
 import com.rybka.service.exchange.ExchangeService;
@@ -22,28 +22,17 @@ public class ConvertCommand implements Command {
     @Override
     public void execute() {
         try {
-            System.out.print("Insert base currency: ");
-            var userBaseCurrency = scanner.next().toUpperCase();
-            System.out.print("Enter value: ");
-            var userValue = scanner.nextDouble();
-            System.out.print("Insert target currency: ");
-            var userTargetCurrency = scanner.next().toUpperCase();
-
-            var userConvertData = readUserParameters(userBaseCurrency, userTargetCurrency, userValue);
+            var userConvertData = readUserParameters();
             var convertedResult = convert(userConvertData);
 
             print(convertedResult);
             save(convertedResult);
-        } catch (InputMismatchException exception) {
-            log.error("Please enter valid value for exchange.");
         } catch (Exception exception) {
-            log.error("Some issues are occurred! Reason: " + exception.getMessage());
+            log.error("Some issues have been occurred during conversion. Reason: " + exception.getMessage());
         }
     }
 
     private CurrencyHistory convert(UserConvertData userConvertData) {
-        if (service == null) throw new CurrencyAPICallException("Unable to call exchange service.");
-
         var currencyResponse = service.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
         var total = service.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
 
@@ -59,12 +48,29 @@ public class ConvertCommand implements Command {
     }
 
     private void save(CurrencyHistory currencyHistory) {
-        if (currencyHistoryDAO == null) throw new DBConnectionException("Unable to connect to Database.");
-        currencyHistoryDAO.save(currencyHistory);
+        try {
+            currencyHistoryDAO.save(currencyHistory);
+        } catch (Exception exception) {
+            log.error("Unable to connect to DB while performing action. Reason: " + exception.getMessage());
+            throw new DBConnectionException("Connection isn't set.");
+        }
     }
 
-    private UserConvertData readUserParameters(String userBaseCurrency, String userTargetCurrency, double userValue) {
-        return new UserConvertData(userBaseCurrency, userTargetCurrency, userValue);
+    private UserConvertData readUserParameters() {
+        try {
+            System.out.print("Insert base currency: ");
+            var userBaseCurrency = scanner.next().toUpperCase();
+            System.out.print("Enter value: ");
+            var userValue = scanner.nextDouble();
+            System.out.print("Insert target currency: ");
+            var userTargetCurrency = scanner.next().toUpperCase();
+
+            return new UserConvertData(userBaseCurrency, userTargetCurrency, userValue);
+
+        } catch (InputMismatchException exception) {
+            log.error("Please enter valid value for exchange.");
+            throw new IncorrectUserDataException("Entered data are invalid.");
+        }
     }
 
     private void showExchange(CurrencyHistory currencyHistory) {

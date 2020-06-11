@@ -22,7 +22,6 @@ public class CurrencyHistoryDAO {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             log.error("Unable to save object. Reason: " + e.getMessage());
         }
     }
