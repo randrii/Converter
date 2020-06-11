@@ -1,5 +1,6 @@
 package com.rybka.dao;
 
+import com.rybka.config.QueryConstants;
 import com.rybka.exception.DBConnectionException;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
@@ -28,7 +29,20 @@ public class CurrencyHistoryDAO {
 
     public List<CurrencyHistory> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from CurrencyHistory", CurrencyHistory.class).list();
+            return session.createQuery(QueryConstants.SELECT_QUERY, CurrencyHistory.class).list();
+        } catch (Exception e) {
+            transaction.rollback();
+            log.error("Error while retrieving data from DB. Reason: " + e.getMessage());
+            throw new DBConnectionException("Unable to access to DB. Reason: " + e.getMessage());
+        }
+    }
+
+    public List<CurrencyHistory> findFiveRecords() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            var query = session.createQuery(QueryConstants.SELECT_QUERY + QueryConstants.LIMIT_SELECT_QUERY,
+                    CurrencyHistory.class);
+            query.setMaxResults(QueryConstants.LIMIT_ROW_NUMBER);
+            return query.list();
         } catch (Exception e) {
             transaction.rollback();
             log.error("Error while retrieving data from DB. Reason: " + e.getMessage());

@@ -3,6 +3,7 @@ package com.rybka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.rybka.command.ConvertCommand;
+import com.rybka.command.HistoryCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.service.connector.ExchangeRateConnector;
@@ -50,11 +51,14 @@ public class Application {
         var exportService = MapSearchUtil.retrieveMapValue(exportConfigMap, reader.getProperty(
                 PropertyInfo.PROPERTY_EXPORT_TYPE));
 
+        var currencyHistoryDAO = new CurrencyHistoryDAO();
+
         ExchangeView view = new ExchangeView(
                 new ConvertCommand(
                         new Scanner(System.in),
                         new ExchangeService(connector),
-                        new CurrencyHistoryDAO()));
+                        currencyHistoryDAO),
+                new HistoryCommand(currencyHistoryDAO));
 
         while (true) {
             view.showView();
