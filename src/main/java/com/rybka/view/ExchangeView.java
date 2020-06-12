@@ -10,7 +10,9 @@ public class ExchangeView {
     private final Command exportCommand;
 
     public void showView() {
-
+        convertCommand.execute();
+        historyCommand.execute();
+        exportCommand.execute();
     }
 
 }

@@ -16,15 +16,15 @@ import com.rybka.service.export.JSONExportService;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.http.HttpClient;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         var objectMapper = new ObjectMapper();
 
@@ -44,9 +44,10 @@ public class Application {
 
         var consoleExportService = new ConsoleExportService();
 
-        var fileWriter = new FileWriter(exportFolder+exportFileName);
-        var csvExportService = new CSVExportService(new CsvMapper(), fileWriter);
-        var jsonExportService = new JSONExportService(objectMapper, fileWriter);
+        Path exportPath = Paths.get(exportFolder + exportFileName);
+
+        CSVExportService csvExportService = new CSVExportService(new CsvMapper(), exportPath);
+        JSONExportService jsonExportService = new JSONExportService(objectMapper, exportPath);
 
         var currencyHistoryDAO = new CurrencyHistoryDAO();
 

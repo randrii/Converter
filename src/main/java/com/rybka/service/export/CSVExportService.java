@@ -9,15 +9,16 @@ import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Log4j
 @RequiredArgsConstructor
 public class CSVExportService implements ExportService {
     private final CsvMapper csvMapper;
-    private final FileWriter fileWriter;
+    private final Path path;
 
     public void export(List<CurrencyHistory> histories) {
         csvMapper.disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
@@ -25,7 +26,7 @@ public class CSVExportService implements ExportService {
         ObjectWriter writer = csvMapper.writer(csvSchema.withLineSeparator("\n"));
 
         try {
-            writer.writeValue(fileWriter, histories);
+            writer.writeValue(Files.newBufferedWriter(path), histories);
             log.info("Exporting history to CSV file.");
         } catch (IOException e) {
             log.error("Unable to export to CSV file. Reason: " + e.getMessage());
