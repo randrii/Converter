@@ -17,15 +17,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CSVExportService implements ExportService {
     private final CsvMapper csvMapper;
-    private final String folder;
-    private final String fileName;
+    private final FileWriter fileWriter;
 
     public void export(List<CurrencyHistory> histories) {
         csvMapper.disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         CsvSchema csvSchema = csvMapper.schemaFor(CurrencyHistory.class).withHeader();
         ObjectWriter writer = csvMapper.writer(csvSchema.withLineSeparator("\n"));
 
-        try (var fileWriter = new FileWriter(folder + fileName)) {
+        try {
             writer.writeValue(fileWriter, histories);
             log.info("Exporting history to CSV file.");
         } catch (IOException e) {

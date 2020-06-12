@@ -14,11 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JSONExportService implements ExportService {
     private final ObjectMapper objectMapper;
-    private final String folder;
-    private final String fileName;
+    private final FileWriter fileWriter;
 
     public void export(List<CurrencyHistory> histories) {
-        try (var fileWriter = new FileWriter(folder + fileName)) {
+        try {
             fileWriter.write(objectMapper.writeValueAsString(histories));
             fileWriter.flush();
 

@@ -16,13 +16,15 @@ import com.rybka.service.export.JSONExportService;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         var objectMapper = new ObjectMapper();
 
@@ -33,7 +35,7 @@ public class Application {
                 ExchangeSource.EXCHANGE.getSource(), exchangeRateConnectorConnector,
                 ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector);
 
-        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_NAME).getProperties();
+        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
         var connector = MapSearchUtil.retrieveMapValue(exchangeSourceMap, reader.getProperty(
                 PropertyInfo.PROPERTY_EXCHANGE_SOURCE));
 
@@ -41,8 +43,10 @@ public class Application {
         var exportFileName = FileUtils.generateFileName(reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE));
 
         var consoleExportService = new ConsoleExportService();
-        var csvExportService = new CSVExportService(new CsvMapper(), exportFolder, exportFileName);
-        var jsonExportService = new JSONExportService(objectMapper, exportFolder, exportFileName);
+
+        var fileWriter = new FileWriter(exportFolder+exportFileName);
+        var csvExportService = new CSVExportService(new CsvMapper(), fileWriter);
+        var jsonExportService = new JSONExportService(objectMapper, fileWriter);
 
         var currencyHistoryDAO = new CurrencyHistoryDAO();
 
