@@ -3,6 +3,7 @@ package com.rybka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.rybka.command.ConvertCommand;
+import com.rybka.command.ExportCommand;
 import com.rybka.command.HistoryCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
@@ -43,14 +44,6 @@ public class Application {
         var csvExportService = new CSVExportService(new CsvMapper(), exportFolder, exportFileName);
         var jsonExportService = new JSONExportService(objectMapper, exportFolder, exportFileName);
 
-        var exportConfigMap = Map.of(
-                ExportType.CONSOLE.getType(), consoleExportService,
-                ExportType.CSV.getType(), csvExportService,
-                ExportType.JSON.getType(), jsonExportService);
-
-        var exportService = MapSearchUtil.retrieveMapValue(exportConfigMap, reader.getProperty(
-                PropertyInfo.PROPERTY_EXPORT_TYPE));
-
         var currencyHistoryDAO = new CurrencyHistoryDAO();
 
         ExchangeView view = new ExchangeView(
@@ -58,7 +51,8 @@ public class Application {
                         new Scanner(System.in),
                         new ExchangeService(connector),
                         currencyHistoryDAO),
-                new HistoryCommand(currencyHistoryDAO));
+                new HistoryCommand(currencyHistoryDAO),
+                new ExportCommand(reader, consoleExportService, csvExportService, jsonExportService, currencyHistoryDAO));
 
         while (true) {
             view.showView();
