@@ -1,17 +1,15 @@
 package com.rybka;
 
 import com.rybka.exception.InvalidPropertyException;
+import lombok.RequiredArgsConstructor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+@RequiredArgsConstructor
 public class PropertyReader {
     private final String path;
-
-    public PropertyReader(String path) {
-        this.path = path;
-    }
 
     public Properties getProperties() {
         Properties properties = new Properties();

@@ -4,18 +4,15 @@ import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeResponse;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@AllArgsConstructor
 public class ExchangeService {
-
     private BaseCurrencyExchangeConnector connectorService;
-
-    public ExchangeService(BaseCurrencyExchangeConnector connectorService) {
-        this.connectorService = connectorService;
-    }
 
     public CurrencyData loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
         var exchangeResponse = connectorService.retrieveRates(userBaseCurrency);

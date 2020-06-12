@@ -4,16 +4,13 @@ import com.rybka.config.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import coresearch.cvurl.io.request.CVurl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
+@RequiredArgsConstructor
 public class ExchangeRateConnector implements BaseCurrencyExchangeConnector {
-
     private final CVurl cVurl;
-
-    public ExchangeRateConnector(CVurl cVurl) {
-        this.cVurl = cVurl;
-    }
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
         try {
