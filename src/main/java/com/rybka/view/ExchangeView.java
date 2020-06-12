@@ -10,7 +10,7 @@ public class ExchangeView {
     private final Command exportCommand;
 
     public void showView() {
-        
+
     }
 
 }

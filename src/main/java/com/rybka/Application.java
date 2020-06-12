@@ -52,7 +52,11 @@ public class Application {
                         new ExchangeService(connector),
                         currencyHistoryDAO),
                 new HistoryCommand(currencyHistoryDAO),
-                new ExportCommand(reader, consoleExportService, csvExportService, jsonExportService, currencyHistoryDAO));
+                new ExportCommand(reader, Map.of(
+                        ExportType.CONSOLE.getType(), consoleExportService,
+                        ExportType.CSV.getType(), csvExportService,
+                        ExportType.JSON.getType(), jsonExportService),
+                        currencyHistoryDAO));
 
         while (true) {
             view.showView();
