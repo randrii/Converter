@@ -8,10 +8,12 @@ import com.rybka.model.UserConvertData;
 import com.rybka.service.exchange.ExchangeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+@Component
 @Log4j
 @RequiredArgsConstructor
 public class ConvertCommand implements Command {

@@ -16,6 +16,8 @@ import com.rybka.service.export.ConsoleExportService;
 import com.rybka.service.export.JSONExportService;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Service;
 
 import java.net.http.HttpClient;
 import java.nio.file.Path;
@@ -23,53 +25,58 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
+@Service
 public class Application {
 
     public static void main(String[] args) {
 
-        var objectMapper = new ObjectMapper();
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        var objectMapper = context.getBean(ObjectMapper.class);
 
-        var primeExchangeRateConnector = new PrimeExchangeRateConnector(HttpClient.newHttpClient(), objectMapper);
-        var exchangeRateConnectorConnector = new ExchangeRateConnector(new CVurl());
+        var primeExchangeRateConnector = context.getBean(PrimeExchangeRateConnector.class, HttpClient.newHttpClient(), objectMapper);
+        var exchangeRateConnectorConnector = context.getBean(ExchangeRateConnector.class, context.getBean(CVurl.class));
 
         var exchangeSourceMap = Map.of(
                 ExchangeSource.EXCHANGE.getSource(), exchangeRateConnectorConnector,
                 ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector);
 
-        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
+        var reader = context.getBean(PropertyReader.class, PropertyInfo.PROPERTY_FILE_PATH).getProperties();
         var connector = MapSearchUtil.retrieveMapValue(exchangeSourceMap, reader.getProperty(
                 PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
 
         var exportFolder = reader.getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER);
         var exportFileName = FileUtils.generateFileName(reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE));
 
-        var consoleExportService = new ConsoleExportService();
+        var consoleExportService = context.getBean(ConsoleExportService.class);
 
         Path exportPath = Paths.get(exportFolder + exportFileName);
 
-        CSVExportService csvExportService = new CSVExportService(new CsvMapper(), exportPath);
-        JSONExportService jsonExportService = new JSONExportService(objectMapper, exportPath);
+        var csvMapper = context.getBean(CsvMapper.class);
+
+        CSVExportService csvExportService = context.getBean(CSVExportService.class, csvMapper, exportPath);
+
+        JSONExportService jsonExportService = context.getBean(JSONExportService.class, objectMapper, exportPath);
 
         var exportConfigMap = Map.of(
                 ExportType.CONSOLE.getType(), consoleExportService,
                 ExportType.CSV.getType(), csvExportService,
                 ExportType.JSON.getType(), jsonExportService);
 
-        var currencyHistoryDAO = new CurrencyHistoryDAO();
+        var currencyHistoryDAO = context.getBean(CurrencyHistoryDAO.class);
 
-        var scanner = new Scanner(System.in);
-        var serviceConnector = new ExchangeService(connector);
+        var scanner = context.getBean(Scanner.class, System.in);
+        var serviceConnector = context.getBean(ExchangeService.class, connector);
 
-        var convertCommand = new ConvertCommand(scanner, serviceConnector, currencyHistoryDAO);
-        var historyCommand = new HistoryCommand(currencyHistoryDAO);
-        var exportCommand = new ExportCommand(reader, exportConfigMap, currencyHistoryDAO);
+        var convertCommand = context.getBean(ConvertCommand.class, scanner, serviceConnector, currencyHistoryDAO);
+        var historyCommand = context.getBean(HistoryCommand.class, currencyHistoryDAO);
+        var exportCommand = context.getBean(ExportCommand.class, reader, exportConfigMap, currencyHistoryDAO);
 
         var commandMap = Map.of(
                 CommandConstants.CONVERT_COMMAND, convertCommand,
                 CommandConstants.HISTORY_COMMAND, historyCommand,
                 CommandConstants.EXPORT_COMMAND, exportCommand);
 
-        ExchangeView view = new ExchangeView(scanner, commandMap);
+        ExchangeView view = context.getBean(ExchangeView.class, scanner, commandMap);
 
         while (true) {
             view.showView();

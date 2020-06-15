@@ -6,10 +6,12 @@ import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.export.ExportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Properties;
 
+@Component
 @RequiredArgsConstructor
 public class ExportCommand implements Command {
     private final Properties reader;

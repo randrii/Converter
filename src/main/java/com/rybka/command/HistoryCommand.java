@@ -4,7 +4,9 @@ import com.rybka.config.QueryConstants;
 import com.rybka.dao.CurrencyHistoryDAO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
+@Component
 @Log4j
 @RequiredArgsConstructor
 public class HistoryCommand implements Command {
