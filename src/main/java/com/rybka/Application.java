@@ -7,6 +7,7 @@ import com.rybka.command.ExportCommand;
 import com.rybka.command.HistoryCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.connector.ExchangeRateConnector;
 import com.rybka.service.exchange.ExchangeService;
 import com.rybka.service.connector.PrimeExchangeRateConnector;
@@ -37,7 +38,7 @@ public class Application {
 
         var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
         var connector = MapSearchUtil.retrieveMapValue(exchangeSourceMap, reader.getProperty(
-                PropertyInfo.PROPERTY_EXCHANGE_SOURCE));
+                PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
 
         var exportFolder = reader.getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER);
         var exportFileName = FileUtils.generateFileName(reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE));
@@ -49,19 +50,26 @@ public class Application {
         CSVExportService csvExportService = new CSVExportService(new CsvMapper(), exportPath);
         JSONExportService jsonExportService = new JSONExportService(objectMapper, exportPath);
 
+        var exportConfigMap = Map.of(
+                ExportType.CONSOLE.getType(), consoleExportService,
+                ExportType.CSV.getType(), csvExportService,
+                ExportType.JSON.getType(), jsonExportService);
+
         var currencyHistoryDAO = new CurrencyHistoryDAO();
 
-        ExchangeView view = new ExchangeView(
-                new ConvertCommand(
-                        new Scanner(System.in),
-                        new ExchangeService(connector),
-                        currencyHistoryDAO),
-                new HistoryCommand(currencyHistoryDAO),
-                new ExportCommand(reader, Map.of(
-                        ExportType.CONSOLE.getType(), consoleExportService,
-                        ExportType.CSV.getType(), csvExportService,
-                        ExportType.JSON.getType(), jsonExportService),
-                        currencyHistoryDAO));
+        var scanner = new Scanner(System.in);
+        var serviceConnector = new ExchangeService(connector);
+
+        var convertCommand = new ConvertCommand(scanner, serviceConnector, currencyHistoryDAO);
+        var historyCommand = new HistoryCommand(currencyHistoryDAO);
+        var exportCommand = new ExportCommand(reader, exportConfigMap, currencyHistoryDAO);
+
+        var commandMap = Map.of(
+                CommandConstants.CONVERT_COMMAND, convertCommand,
+                CommandConstants.HISTORY_COMMAND, historyCommand,
+                CommandConstants.EXPORT_COMMAND, exportCommand);
+
+        ExchangeView view = new ExchangeView(scanner, commandMap);
 
         while (true) {
             view.showView();
