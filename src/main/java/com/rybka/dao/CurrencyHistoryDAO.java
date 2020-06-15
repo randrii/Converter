@@ -28,7 +28,7 @@ public class CurrencyHistoryDAO {
 
     public List<CurrencyHistory> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery(QueryConstants.SELECT_QUERY, CurrencyHistory.class).list();
+            return session.createQuery(QueryConstants.CURRENCY_HISTORY_QUERY, CurrencyHistory.class).list();
         } catch (Exception e) {
             transaction.rollback();
             log.error("Error while retrieving data from DB. Reason: " + e.getMessage());
@@ -38,7 +38,7 @@ public class CurrencyHistoryDAO {
 
     public List<CurrencyHistory> findAllLimit(int limit) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            var query = session.createQuery(QueryConstants.SELECT_QUERY + QueryConstants.LIMIT_SELECT_QUERY,
+            var query = session.createQuery(QueryConstants.CURRENCY_HISTORY_QUERY + QueryConstants.LIMIT_QUERY,
                     CurrencyHistory.class);
             query.setMaxResults(limit);
             return query.list();

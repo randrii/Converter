@@ -18,6 +18,8 @@ import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
 
 import java.net.http.HttpClient;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -34,7 +36,7 @@ public class Application {
                 ExchangeSource.EXCHANGE.getSource(), exchangeRateConnectorConnector,
                 ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector);
 
-        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_NAME).getProperties();
+        var reader = new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
         var connector = MapSearchUtil.retrieveMapValue(exchangeSourceMap, reader.getProperty(
                 PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
 
@@ -42,8 +44,11 @@ public class Application {
         var exportFileName = FileUtils.generateFileName(reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE));
 
         var consoleExportService = new ConsoleExportService();
-        var csvExportService = new CSVExportService(new CsvMapper(), exportFolder, exportFileName);
-        var jsonExportService = new JSONExportService(objectMapper, exportFolder, exportFileName);
+
+        Path exportPath = Paths.get(exportFolder + exportFileName);
+
+        CSVExportService csvExportService = new CSVExportService(new CsvMapper(), exportPath);
+        JSONExportService jsonExportService = new JSONExportService(objectMapper, exportPath);
 
         var exportConfigMap = Map.of(
                 ExportType.CONSOLE.getType(), consoleExportService,

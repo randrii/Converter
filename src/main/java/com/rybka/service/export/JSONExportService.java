@@ -6,22 +6,20 @@ import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Log4j
 @RequiredArgsConstructor
 public class JSONExportService implements ExportService {
     private final ObjectMapper objectMapper;
-    private final String folder;
-    private final String fileName;
+    private final Path path;
 
     public void export(List<CurrencyHistory> histories) {
-        try (var fileWriter = new FileWriter(folder + fileName)) {
-            fileWriter.write(objectMapper.writeValueAsString(histories));
-            fileWriter.flush();
-
+        try {
+            Files.write(path, objectMapper.writeValueAsString(histories).getBytes());
             log.info("Exporting history to JSON file");
         } catch (IOException e) {
             log.error("Unable to export data to JSON. Reason: " + e.getMessage());
