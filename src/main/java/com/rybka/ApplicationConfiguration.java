@@ -8,6 +8,7 @@ import com.rybka.command.ExportCommand;
 import com.rybka.command.HistoryCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import com.rybka.service.connector.ExchangeRateConnector;
 import com.rybka.service.connector.PrimeExchangeRateConnector;
@@ -18,21 +19,19 @@ import com.rybka.service.export.ExportService;
 import com.rybka.service.export.JSONExportService;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import java.net.http.HttpClient;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 
 @Configuration
-@ComponentScan("com.rybka")
+@ComponentScan("com.rybka.*")
 public class ApplicationConfiguration {
 
     @Bean
@@ -41,7 +40,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public PrimeExchangeRateConnector primeExchangeRateConnector() {
+    public BaseCurrencyExchangeConnector primeExchangeRateConnector() {
         return new PrimeExchangeRateConnector(HttpClient.newHttpClient(), objectMapper());
     }
 
@@ -51,13 +50,13 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public ExchangeRateConnector exchangeRateConnector() {
+    public BaseCurrencyExchangeConnector exchangeRateConnector() {
         return new ExchangeRateConnector(cVurl());
     }
 
     @Bean
-    public PropertyReader propertyReader() {
-        return new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH);
+    public Properties propertyReader() {
+        return new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
     }
 
     @Bean
@@ -71,13 +70,19 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public CSVExportService csvExportService() {
-        return new CSVExportService(csvMapper(), exportPath);
+    public Path getExportPath() {
+        return Paths.get(propertyReader().getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER)
+                + FileUtils.generateFileName(propertyReader().getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE)));
     }
 
     @Bean
-    public JSONExportService jsonExportService(Path exportPath) {
-        return new JSONExportService(objectMapper(), exportPath);
+    public CSVExportService csvExportService() {
+        return new CSVExportService(csvMapper(), getExportPath());
+    }
+
+    @Bean
+    public JSONExportService jsonExportService() {
+        return new JSONExportService(objectMapper(), getExportPath());
     }
 
     @Bean
@@ -91,13 +96,13 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public ExchangeService exchangeService(PrimeExchangeRateConnector connector) {
-        return new ExchangeService(connector);
+    public ExchangeService exchangeService() {
+        return new ExchangeService(connector());
     }
 
     @Bean
     public Command convertCommand() {
-        return new ConvertCommand(scanner(), exchangeService(primeExchangeRateConnector()), currencyHistoryDAO());
+        return new ConvertCommand(scanner(), exchangeService(), currencyHistoryDAO());
     }
 
     @Bean
@@ -106,12 +111,41 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public Command exportCommand(Map<String, ExportService> exportConfigMap) {
-        return new ExportCommand(propertyReader().getProperties(), exportConfigMap, currencyHistoryDAO());
+    public Command exportCommand() {
+        return new ExportCommand(propertyReader(), exportConfigMap(), currencyHistoryDAO());
     }
 
     @Bean
-    public ExchangeView exchangeView(Map<String, Command> commandMap) {
-        return new ExchangeView(scanner(), commandMap);
+    public ExchangeView exchangeView() {
+        return new ExchangeView(scanner(), commandMap());
+    }
+
+    @Bean
+    public Map<String, Command> commandMap() {
+        return Map.of(
+                CommandConstants.CONVERT_COMMAND, convertCommand(),
+                CommandConstants.HISTORY_COMMAND, historyCommand(),
+                CommandConstants.EXPORT_COMMAND, exportCommand());
+    }
+
+    @Bean
+    public Map<String, ExportService> exportConfigMap() {
+        return Map.of(
+                ExportType.CONSOLE.getType(), consoleExportService(),
+                ExportType.CSV.getType(), csvExportService(),
+                ExportType.JSON.getType(), jsonExportService());
+    }
+
+    @Bean
+    public Map<String, BaseCurrencyExchangeConnector> exchangeSourceMap() {
+        return Map.of(
+                ExchangeSource.EXCHANGE.getSource(), exchangeRateConnector(),
+                ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector());
+    }
+
+    @Bean
+    public BaseCurrencyExchangeConnector connector() {
+        return MapSearchUtil.retrieveMapValue(exchangeSourceMap(), propertyReader().getProperty(
+                PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
     }
 }

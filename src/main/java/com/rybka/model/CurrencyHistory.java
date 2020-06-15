@@ -2,12 +2,10 @@ package com.rybka.model;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Component
 @Data
 @NoArgsConstructor
 @Entity

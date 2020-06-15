@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
 
-@Component
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExchangeResponse {
