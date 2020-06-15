@@ -1,16 +1,32 @@
 package com.rybka.view;
 
 import com.rybka.command.Command;
-import lombok.AllArgsConstructor;
+import com.rybka.config.MapSearchUtil;
+import com.rybka.exception.InvalidCommandException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
-@AllArgsConstructor
+import java.util.Map;
+import java.util.Scanner;
+
+@Log4j
+@RequiredArgsConstructor
 public class ExchangeView {
-    private final Command convertCommand;
-    private final Command historyCommand;
-    private final Command exportCommand;
+    private final Scanner scanner;
+    private final Map<String, Command> commandMap;
 
     public void showView() {
+        System.out.print("Type option here: ");
+        var userCommand = scanner.next();
 
+        try {
+            var command = MapSearchUtil.retrieveMapValue(commandMap, userCommand,
+                    new InvalidCommandException("Incorrect command to implement."));
+
+            command.execute();
+        } catch (Exception exception) {
+            log.error("Unsupported or invalid input. Reason: " + exception.getMessage());
+        }
     }
 
 }
