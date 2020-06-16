@@ -17,7 +17,7 @@ import java.net.http.HttpResponse;
 @Log4j
 @RequiredArgsConstructor
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
-    private final HttpClient client;
+    private final HttpClient httpClient;
     private final ObjectMapper mapper;
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
@@ -27,7 +27,7 @@ public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .build();
-            var response = client.send(request,
+            var response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
             return mapper.readValue(response.body(), ExchangeResponse.class);

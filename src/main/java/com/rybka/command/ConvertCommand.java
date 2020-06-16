@@ -1,5 +1,6 @@
 package com.rybka.command;
 
+import com.rybka.config.CommandConstants;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.exception.DBConnectionException;
 import com.rybka.exception.IncorrectUserDataException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-@Component
+@Component(CommandConstants.CONVERT_COMMAND)
 @Log4j
 @RequiredArgsConstructor
 public class ConvertCommand implements Command {

@@ -1,5 +1,6 @@
 package com.rybka.command;
 
+import com.rybka.config.CommandConstants;
 import com.rybka.config.MapSearchUtil;
 import com.rybka.config.PropertyInfo;
 import com.rybka.dao.CurrencyHistoryDAO;
@@ -10,13 +11,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
-@Component
+@Component(CommandConstants.EXPORT_COMMAND)
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 public class ExportCommand implements Command {
     private final Environment environment;
+    @Resource(name = "exportConfigMap")
     private final Map<String, ExportService> exportConfigMap;
     private final CurrencyHistoryDAO currencyHistoryDAO;
 

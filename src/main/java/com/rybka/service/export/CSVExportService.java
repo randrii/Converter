@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CSVExportService implements ExportService {
     private final CsvMapper csvMapper;
-    private final Path path;
+    private final Path exportPath;
 
     public void export(List<CurrencyHistory> histories) {
         csvMapper.disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
@@ -28,7 +28,7 @@ public class CSVExportService implements ExportService {
         ObjectWriter writer = csvMapper.writer(csvSchema.withLineSeparator("\n"));
 
         try {
-            writer.writeValue(Files.newBufferedWriter(path), histories);
+            writer.writeValue(Files.newBufferedWriter(exportPath), histories);
             log.info("Exporting history to CSV file.");
         } catch (IOException e) {
             log.error("Unable to export to CSV file. Reason: " + e.getMessage());

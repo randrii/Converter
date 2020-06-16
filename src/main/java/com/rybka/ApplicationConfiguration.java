@@ -2,10 +2,6 @@ package com.rybka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.rybka.command.Command;
-import com.rybka.command.ConvertCommand;
-import com.rybka.command.ExportCommand;
-import com.rybka.command.HistoryCommand;
 import com.rybka.config.*;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.exception.InvalidPropertyException;
@@ -17,7 +13,6 @@ import com.rybka.service.export.CSVExportService;
 import com.rybka.service.export.ConsoleExportService;
 import com.rybka.service.export.ExportService;
 import com.rybka.service.export.JSONExportService;
-import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -107,11 +102,6 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public ExchangeView exchangeView() {
-        return new ExchangeView(scanner(), commandMap());
-    }
-
-    @Bean
     public Map<String, ExportService> exportConfigMap() {
         return Map.of(
                 ExportType.CONSOLE.getType(), consoleExportService(),
@@ -124,28 +114,5 @@ public class ApplicationConfiguration {
         return Map.of(
                 ExchangeSource.EXCHANGE.getSource(), exchangeRateConnector(),
                 ExchangeSource.PRIME_EXCHANGE.getSource(), primeExchangeRateConnector());
-    }
-
-    @Bean
-    public ConvertCommand convertCommand() {
-        return new ConvertCommand(scanner(), exchangeService(), currencyHistoryDAO());
-    }
-
-    @Bean
-    public HistoryCommand historyCommand() {
-        return new HistoryCommand(currencyHistoryDAO());
-    }
-
-    @Bean
-    public ExportCommand exportCommand() {
-        return new ExportCommand(environment, exportConfigMap(), currencyHistoryDAO());
-    }
-
-    @Bean
-    public Map<String, Command> commandMap() {
-        return Map.of(
-                CommandConstants.CONVERT_COMMAND, convertCommand(),
-                CommandConstants.HISTORY_COMMAND, historyCommand(),
-                CommandConstants.EXPORT_COMMAND, exportCommand());
     }
 }

@@ -17,11 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JSONExportService implements ExportService {
     private final ObjectMapper objectMapper;
-    private final Path path;
+    private final Path exportPath;
 
     public void export(List<CurrencyHistory> histories) {
         try {
-            Files.write(path, objectMapper.writeValueAsString(histories).getBytes());
+            Files.write(exportPath, objectMapper.writeValueAsString(histories).getBytes());
             log.info("Exporting history to JSON file");
         } catch (IOException e) {
             log.error("Unable to export data to JSON. Reason: " + e.getMessage());
