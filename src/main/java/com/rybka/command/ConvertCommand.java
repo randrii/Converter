@@ -18,7 +18,7 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class ConvertCommand implements Command {
     private final Scanner scanner;
-    private final ExchangeService service;
+    private final ExchangeService exchangeService;
     private final CurrencyHistoryDAO currencyHistoryDAO;
 
     @Override
@@ -35,8 +35,8 @@ public class ConvertCommand implements Command {
     }
 
     private CurrencyHistory convert(UserConvertData userConvertData) {
-        var currencyResponse = service.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
-        var total = service.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
+        var currencyResponse = exchangeService.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
+        var total = exchangeService.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
 
         return constructConvertedResult(currencyResponse.getBase(),
                 currencyResponse.getTarget(),

@@ -6,22 +6,24 @@ import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.export.ExportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Properties;
 
 @Component
+@PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
 public class ExportCommand implements Command {
-    private final Properties reader;
+    private final Environment environment;
     private final Map<String, ExportService> exportConfigMap;
     private final CurrencyHistoryDAO currencyHistoryDAO;
 
     @Override
     public void execute() {
         var exportService = MapSearchUtil.retrieveMapValue(exportConfigMap,
-                reader.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE),
+                environment.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE),
                 new InvalidPropertyException("Unsupported export type or exchange source."));
 
         exportService.export(currencyHistoryDAO.findAll());

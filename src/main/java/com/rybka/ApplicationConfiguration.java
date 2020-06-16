@@ -19,20 +19,25 @@ import com.rybka.service.export.ExportService;
 import com.rybka.service.export.JSONExportService;
 import com.rybka.view.ExchangeView;
 import coresearch.cvurl.io.request.CVurl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import java.net.http.HttpClient;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Scanner;
 
 @Configuration
 @ComponentScan("com.rybka.*")
+@PropertySource("classpath:application.properties")
 public class ApplicationConfiguration {
+    @Autowired
+    private Environment environment;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -55,11 +60,6 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public Properties propertyReader() {
-        return new PropertyReader(PropertyInfo.PROPERTY_FILE_PATH).getProperties();
-    }
-
-    @Bean
     public ConsoleExportService consoleExportService() {
         return new ConsoleExportService();
     }
@@ -71,8 +71,8 @@ public class ApplicationConfiguration {
 
     @Bean
     public Path getExportPath() {
-        return Paths.get(propertyReader().getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER)
-                + FileUtils.generateFileName(propertyReader().getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE)));
+        return Paths.get(environment.getProperty(PropertyInfo.PROPERTY_EXPORT_FOLDER)
+                + FileUtils.generateFileName(environment.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE)));
     }
 
     @Bean
@@ -96,36 +96,19 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    public BaseCurrencyExchangeConnector connector() {
+        return MapSearchUtil.retrieveMapValue(exchangeSourceMap(), environment.getProperty(
+                PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
+    }
+
+    @Bean
     public ExchangeService exchangeService() {
         return new ExchangeService(connector());
     }
 
     @Bean
-    public Command convertCommand() {
-        return new ConvertCommand(scanner(), exchangeService(), currencyHistoryDAO());
-    }
-
-    @Bean
-    public Command historyCommand() {
-        return new HistoryCommand(currencyHistoryDAO());
-    }
-
-    @Bean
-    public Command exportCommand() {
-        return new ExportCommand(propertyReader(), exportConfigMap(), currencyHistoryDAO());
-    }
-
-    @Bean
     public ExchangeView exchangeView() {
         return new ExchangeView(scanner(), commandMap());
-    }
-
-    @Bean
-    public Map<String, Command> commandMap() {
-        return Map.of(
-                CommandConstants.CONVERT_COMMAND, convertCommand(),
-                CommandConstants.HISTORY_COMMAND, historyCommand(),
-                CommandConstants.EXPORT_COMMAND, exportCommand());
     }
 
     @Bean
@@ -144,8 +127,25 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public BaseCurrencyExchangeConnector connector() {
-        return MapSearchUtil.retrieveMapValue(exchangeSourceMap(), propertyReader().getProperty(
-                PropertyInfo.PROPERTY_EXCHANGE_SOURCE), new InvalidPropertyException("Unsupported export type or exchange source."));
+    public ConvertCommand convertCommand() {
+        return new ConvertCommand(scanner(), exchangeService(), currencyHistoryDAO());
+    }
+
+    @Bean
+    public HistoryCommand historyCommand() {
+        return new HistoryCommand(currencyHistoryDAO());
+    }
+
+    @Bean
+    public ExportCommand exportCommand() {
+        return new ExportCommand(environment, exportConfigMap(), currencyHistoryDAO());
+    }
+
+    @Bean
+    public Map<String, Command> commandMap() {
+        return Map.of(
+                CommandConstants.CONVERT_COMMAND, convertCommand(),
+                CommandConstants.HISTORY_COMMAND, historyCommand(),
+                CommandConstants.EXPORT_COMMAND, exportCommand());
     }
 }
