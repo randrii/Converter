@@ -1,12 +1,13 @@
 package com.rybka.service.export;
 
+import com.rybka.config.ExportType;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component(ExportType.CONSOLE_EXPORT_TYPE)
 @Log4j
 public class ConsoleExportService implements ExportService {
 

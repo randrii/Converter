@@ -1,6 +1,7 @@
 package com.rybka.service.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rybka.config.ExportType;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-@Component
+@Component(ExportType.JSON_EXPORT_TYPE)
 @Log4j
 @RequiredArgsConstructor
-public class JSONExportService implements ExportService {
+public class JsonExportService implements ExportService {
     private final ObjectMapper objectMapper;
     private final Path exportPath;
 

@@ -1,6 +1,7 @@
 package com.rybka.service.connector;
 
 import com.rybka.config.CurrencyAPIConstants;
+import com.rybka.config.ExchangeSource;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import coresearch.cvurl.io.request.CVurl;
@@ -8,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component(ExchangeSource.EXCHANGE_SOURCE)
 @Log4j
 @RequiredArgsConstructor
 public class ExchangeRateConnector implements BaseCurrencyExchangeConnector {

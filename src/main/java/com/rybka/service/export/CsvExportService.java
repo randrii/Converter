@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.rybka.config.ExportType;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +16,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-@Component
+@Component(ExportType.CSV_EXPORT_TYPE)
 @Log4j
 @RequiredArgsConstructor
-public class CSVExportService implements ExportService {
+public class CsvExportService implements ExportService {
     private final CsvMapper csvMapper;
     private final Path exportPath;
 

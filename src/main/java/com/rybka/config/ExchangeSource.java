@@ -1,13 +1,6 @@
 package com.rybka.config;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-@Getter
-public enum ExchangeSource {
-    EXCHANGE("exchange"),
-    PRIME_EXCHANGE("prime_exchange");
-
-    private final String source;
+public class ExchangeSource {
+    public static final String EXCHANGE_SOURCE = "exchange";
+    public static final String PRIME_EXCHANGE_SOURCE = "prime_exchange";
 }

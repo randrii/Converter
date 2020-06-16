@@ -11,7 +11,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 @Component(CommandConstants.EXPORT_COMMAND)
@@ -19,7 +18,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExportCommand implements Command {
     private final Environment environment;
-    @Resource(name = "exportConfigMap")
     private final Map<String, ExportService> exportConfigMap;
     private final CurrencyHistoryDAO currencyHistoryDAO;
 
