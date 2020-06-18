@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 public class ExchangeSource {
     public static final String EXCHANGE_SOURCE = "exchange";

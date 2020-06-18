@@ -1,7 +1,7 @@
 package com.rybka.view;
 
 import com.rybka.command.Command;
-import com.rybka.config.MapSearchUtil;
+import com.rybka.constant.MapSearchUtil;
 import com.rybka.exception.InvalidCommandException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;

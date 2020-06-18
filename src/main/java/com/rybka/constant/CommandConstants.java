@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 public class CommandConstants {
     public static final String CONVERT_COMMAND = "/convert";

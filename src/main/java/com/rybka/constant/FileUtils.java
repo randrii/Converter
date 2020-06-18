@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
