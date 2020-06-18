@@ -1,5 +1,6 @@
 package com.rybka.command;
 
+import com.rybka.config.CommandConstants;
 import com.rybka.dao.CurrencyHistoryDAO;
 import com.rybka.exception.DBConnectionException;
 import com.rybka.exception.IncorrectUserDataException;
@@ -8,15 +9,17 @@ import com.rybka.model.UserConvertData;
 import com.rybka.service.exchange.ExchangeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+@Component(CommandConstants.CONVERT_COMMAND)
 @Log4j
 @RequiredArgsConstructor
 public class ConvertCommand implements Command {
     private final Scanner scanner;
-    private final ExchangeService service;
+    private final ExchangeService exchangeService;
     private final CurrencyHistoryDAO currencyHistoryDAO;
 
     @Override
@@ -33,8 +36,8 @@ public class ConvertCommand implements Command {
     }
 
     private CurrencyHistory convert(UserConvertData userConvertData) {
-        var currencyResponse = service.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
-        var total = service.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
+        var currencyResponse = exchangeService.loadCurrencyOf(userConvertData.getUserBaseCurrency(), userConvertData.getUserTargetCurrency());
+        var total = exchangeService.calculateTotal(currencyResponse.getRate(), userConvertData.getUserValue());
 
         return constructConvertedResult(currencyResponse.getBase(),
                 currencyResponse.getTarget(),

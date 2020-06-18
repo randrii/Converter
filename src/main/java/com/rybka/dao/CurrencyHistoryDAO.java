@@ -6,9 +6,11 @@ import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 @Log4j
 public class CurrencyHistoryDAO {
     private Transaction transaction;

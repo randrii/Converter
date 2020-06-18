@@ -5,10 +5,12 @@ import com.rybka.config.MapSearchUtil;
 import com.rybka.exception.InvalidCommandException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Scanner;
 
+@Component
 @Log4j
 @RequiredArgsConstructor
 public class ExchangeView {
