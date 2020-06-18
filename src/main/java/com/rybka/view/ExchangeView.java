@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -16,7 +15,6 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class ExchangeView {
     private final Scanner scanner;
-    @Resource
     private final Map<String, Command> commandMap;
 
     public void showView() {

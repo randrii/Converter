@@ -6,11 +6,11 @@ import com.rybka.model.ExchangeResponse;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-@Component
+@Service
 @Data
 @AllArgsConstructor
 public class ExchangeService {
