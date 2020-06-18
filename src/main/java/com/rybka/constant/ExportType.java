@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 public class ExportType {
     public static final String CONSOLE_EXPORT_TYPE = "console";

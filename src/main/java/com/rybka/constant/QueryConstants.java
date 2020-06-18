@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 public final class QueryConstants {
     public static final String CURRENCY_HISTORY_QUERY = "FROM CurrencyHistory";

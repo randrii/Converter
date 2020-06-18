@@ -1,14 +1,15 @@
-package com.rybka;
+package com.rybka.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.rybka.config.*;
+import com.rybka.constant.*;
 import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import coresearch.cvurl.io.request.CVurl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.net.http.HttpClient;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Scanner;
 @Configuration
 @ComponentScan("com.rybka.*")
 @PropertySource("classpath:application.properties")
+@EnableJpaRepositories("com.rybka.dao")
 public class ApplicationConfiguration {
     @Autowired
     private Environment environment;

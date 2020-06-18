@@ -1,6 +1,6 @@
 package com.rybka.service.export;
 
-import com.rybka.config.ExportType;
+import com.rybka.constant.ExportType;
 import com.rybka.model.CurrencyHistory;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;

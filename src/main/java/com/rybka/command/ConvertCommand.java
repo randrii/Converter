@@ -1,7 +1,7 @@
 package com.rybka.command;
 
-import com.rybka.config.CommandConstants;
-import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.constant.CommandConstants;
+import com.rybka.dao.CurrencyHistoryRepository;
 import com.rybka.exception.DBConnectionException;
 import com.rybka.exception.IncorrectUserDataException;
 import com.rybka.model.CurrencyHistory;
@@ -20,7 +20,7 @@ import java.util.Scanner;
 public class ConvertCommand implements Command {
     private final Scanner scanner;
     private final ExchangeService exchangeService;
-    private final CurrencyHistoryDAO currencyHistoryDAO;
+    private final CurrencyHistoryRepository currencyHistoryRepository;
 
     @Override
     public void execute() {
@@ -52,7 +52,7 @@ public class ConvertCommand implements Command {
 
     private void save(CurrencyHistory currencyHistory) {
         try {
-            currencyHistoryDAO.save(currencyHistory);
+            currencyHistoryRepository.save(currencyHistory);
         } catch (Exception exception) {
             log.error("Unable to connect to DB while performing action. Reason: " + exception.getMessage());
             throw new DBConnectionException("Connection isn't set.");

@@ -1,9 +1,9 @@
 package com.rybka.command;
 
-import com.rybka.config.CommandConstants;
-import com.rybka.config.MapSearchUtil;
-import com.rybka.config.PropertyInfo;
-import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.constant.CommandConstants;
+import com.rybka.constant.MapSearchUtil;
+import com.rybka.constant.PropertyInfo;
+import com.rybka.dao.CurrencyHistoryRepository;
 import com.rybka.exception.InvalidPropertyException;
 import com.rybka.service.export.ExportService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class ExportCommand implements Command {
     private final Environment environment;
     private final Map<String, ExportService> exportConfigMap;
-    private final CurrencyHistoryDAO currencyHistoryDAO;
+    private final CurrencyHistoryRepository currencyHistoryRepository;
 
     @Override
     public void execute() {
@@ -27,6 +27,6 @@ public class ExportCommand implements Command {
                 environment.getProperty(PropertyInfo.PROPERTY_EXPORT_TYPE),
                 new InvalidPropertyException("Unsupported export type or exchange source."));
 
-        exportService.export(currencyHistoryDAO.findAll());
+        exportService.export(currencyHistoryRepository.findAll());
     }
 }

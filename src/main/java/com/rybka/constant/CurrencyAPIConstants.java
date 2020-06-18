@@ -1,4 +1,4 @@
-package com.rybka.config;
+package com.rybka.constant;
 
 public final class CurrencyAPIConstants {
     public static final String PRIME_EXCHANGE_RATE_API_URL = "https://prime.exchangerate-api.com/v5/%s/latest/%s";

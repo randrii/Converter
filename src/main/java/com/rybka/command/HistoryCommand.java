@@ -1,8 +1,7 @@
 package com.rybka.command;
 
-import com.rybka.config.CommandConstants;
-import com.rybka.config.QueryConstants;
-import com.rybka.dao.CurrencyHistoryDAO;
+import com.rybka.constant.CommandConstants;
+import com.rybka.dao.CurrencyHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
@@ -11,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Log4j
 @RequiredArgsConstructor
 public class HistoryCommand implements Command {
-    private final CurrencyHistoryDAO currencyHistoryDAO;
+    private final CurrencyHistoryRepository currencyHistoryRepository;
 
     @Override
     public void execute() {
         try {
-            var histories = currencyHistoryDAO.findAllLimit(QueryConstants.LIMIT_ROW_NUMBER);
+            var histories = currencyHistoryRepository.findTop5ByOrderByIdDesc();
             histories.forEach(System.out::println);
         } catch (Exception exception) {
             log.error("Some issues have been occurred while returning history. Reason: " + exception.getMessage());
