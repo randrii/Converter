@@ -1,14 +1,14 @@
 package com.rybka.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-@ToString
+@Builder
 public class ExchangeResultData {
     private String base;
     private double count;
