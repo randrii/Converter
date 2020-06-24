@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 @Service
 @Data
@@ -53,42 +54,42 @@ public class ExchangeService {
 
     private List<TopCurrencyData> buyBaseCurrency(String base, double count) {
         var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
-        var topCurrencyList = new ArrayList<TopCurrencyData>();
 
-        Arrays.stream(popularCurrencyList)
-                .forEach(
-                        s -> {
-                            var response = connectorService.retrieveRates(s);
-                            response.setRates(Optional.ofNullable(response.getRates()).orElse(Map.of(s, 0.0)));
-
-                            var currencyRate = retrieveTargetCurrency(response, base).map(Map.Entry::getValue).orElse(0.0);
-                            topCurrencyList.add(TopCurrencyData.builder()
-                                    .name(s)
-                                    .rate(currencyRate)
-                                    .total(calculateTotal(currencyRate, count))
-                                    .build());
-                        });
-
-        return topCurrencyList;
+        return Arrays.stream(popularCurrencyList)
+                .map(s -> obtainBuyBaseForTopCurrency(s, base, count))
+                .collect(Collectors.toList());
     }
 
     private List<TopCurrencyData> sellBaseCurrency(String base, double count) {
-        var exchangeResponse = connectorService.retrieveRates(base);
-
         var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
-        var topCurrencyList = new ArrayList<TopCurrencyData>();
 
-        Arrays.stream(popularCurrencyList).forEach(
-                s -> {
-                    var currencyRate = retrieveTargetCurrency(exchangeResponse, s).map(Map.Entry::getValue).orElse(0.0);
-                    topCurrencyList.add(TopCurrencyData.builder()
-                            .name(s)
-                            .rate(currencyRate)
-                            .total(calculateTotal(currencyRate, count))
-                            .build());
-                });
+        return Arrays.stream(popularCurrencyList)
+                .map(s -> obtainSellBaseForTopCurrency(s, base, count))
+                .collect(Collectors.toList());
+    }
 
-        return topCurrencyList;
+    private TopCurrencyData obtainBuyBaseForTopCurrency(String s, String base, double count) {
+        var response = connectorService.retrieveRates(s);
+        response.setRates(Optional.ofNullable(response.getRates()).orElse(Map.of(s, 0.0)));
+
+        var currencyRate = retrieveTargetCurrency(response, base).map(Map.Entry::getValue).orElse(0.0);
+
+        return TopCurrencyData.builder()
+                .name(s)
+                .rate(currencyRate)
+                .total(calculateTotal(currencyRate, count))
+                .build();
+    }
+
+    private TopCurrencyData obtainSellBaseForTopCurrency(String s, String base, double count) {
+        var response = connectorService.retrieveRates(base);
+        var currencyRate = retrieveTargetCurrency(response, s).map(Map.Entry::getValue).orElse(0.0);
+
+        return TopCurrencyData.builder()
+                .name(s)
+                .rate(currencyRate)
+                .total(calculateTotal(currencyRate, count))
+                .build();
     }
 
     private Optional<Map.Entry<String, Double>> retrieveTargetCurrency(ExchangeResponse exchangeResponse, String userTargetCurrency) {
