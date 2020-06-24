@@ -68,25 +68,25 @@ public class ExchangeService {
                 .collect(Collectors.toList());
     }
 
-    private TopCurrencyData obtainBuyBaseForTopCurrency(String s, String base, double count) {
-        var response = connectorService.retrieveRates(s);
-        response.setRates(Optional.ofNullable(response.getRates()).orElse(Map.of(s, 0.0)));
+    private TopCurrencyData obtainBuyBaseForTopCurrency(String topCurrency, String base, double count) {
+        var response = connectorService.retrieveRates(topCurrency);
+        response.setRates(Optional.ofNullable(response.getRates()).orElse(Map.of(topCurrency, 0.0)));
 
         var currencyRate = retrieveTargetCurrency(response, base).map(Map.Entry::getValue).orElse(0.0);
 
         return TopCurrencyData.builder()
-                .name(s)
+                .name(topCurrency)
                 .rate(currencyRate)
                 .total(calculateTotal(currencyRate, count))
                 .build();
     }
 
-    private TopCurrencyData obtainSellBaseForTopCurrency(String s, String base, double count) {
+    private TopCurrencyData obtainSellBaseForTopCurrency(String topCurrency, String base, double count) {
         var response = connectorService.retrieveRates(base);
-        var currencyRate = retrieveTargetCurrency(response, s).map(Map.Entry::getValue).orElse(0.0);
+        var currencyRate = retrieveTargetCurrency(response, topCurrency).map(Map.Entry::getValue).orElse(0.0);
 
         return TopCurrencyData.builder()
-                .name(s)
+                .name(topCurrency)
                 .rate(currencyRate)
                 .total(calculateTotal(currencyRate, count))
                 .build();
