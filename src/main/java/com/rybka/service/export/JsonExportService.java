@@ -8,6 +8,7 @@ import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Component(ExportType.JSON_EXPORT_TYPE)
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class JsonExportService implements ExportService {
     private final ObjectMapper objectMapper;

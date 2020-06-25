@@ -4,14 +4,14 @@ import com.rybka.command.Command;
 import com.rybka.constant.MapSearchUtil;
 import com.rybka.exception.InvalidCommandException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Scanner;
 
 @Component
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class ExchangeView {
     private final Scanner scanner;

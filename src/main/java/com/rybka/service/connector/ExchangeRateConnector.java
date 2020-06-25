@@ -7,10 +7,11 @@ import com.rybka.model.ExchangeResponse;
 import coresearch.cvurl.io.request.CVurl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component(ExchangeSource.EXCHANGE_SOURCE)
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class ExchangeRateConnector implements BaseCurrencyExchangeConnector {
     private final CVurl cVurl;
