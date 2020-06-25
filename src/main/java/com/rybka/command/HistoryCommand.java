@@ -4,10 +4,11 @@ import com.rybka.constant.CommandConstants;
 import com.rybka.dao.CurrencyHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component(CommandConstants.HISTORY_COMMAND)
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class HistoryCommand implements Command {
     private final CurrencyHistoryRepository currencyHistoryRepository;

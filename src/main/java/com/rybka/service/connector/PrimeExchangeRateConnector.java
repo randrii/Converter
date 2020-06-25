@@ -7,6 +7,7 @@ import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -15,7 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Component(ExchangeSource.PRIME_EXCHANGE_SOURCE)
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
     private final HttpClient httpClient;
