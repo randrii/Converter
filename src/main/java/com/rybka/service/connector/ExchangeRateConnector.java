@@ -2,11 +2,11 @@ package com.rybka.service.connector;
 
 import com.rybka.constant.CurrencyAPIConstants;
 import com.rybka.constant.ExchangeSource;
+import com.rybka.constant.Messages;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import coresearch.cvurl.io.request.CVurl;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,8 @@ public class ExchangeRateConnector implements BaseCurrencyExchangeConnector {
                     .get(String.format(CurrencyAPIConstants.EXCHANGE_RATE_API_URL, userBaseCurrency))
                     .asObject(ExchangeResponse.class);
         } catch (Exception exception) {
-            log.error("Error while calling Exchange Rate API service. Reason: " + exception.getMessage());
-            throw new CurrencyAPICallException("An error appears while calling Exchange Rate API. Reason: " + exception.getMessage());
+            log.error(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.EXCHANGE_SOURCE) + exception.getMessage());
+            throw new CurrencyAPICallException(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.EXCHANGE_SOURCE) + exception.getMessage());
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.rybka.constant;
+package com.rybka.util;
 
 import java.util.Map;
 import java.util.Optional;

@@ -16,9 +16,9 @@ public final class Messages {
     public static final String LOG_CONNECTION_ERROR_MSG = "Unable to connect to DB while performing action. Reason: ";
     public static final String LOG_CONVERSION_ERROR_MSG = "Some issues have been occurred during conversion. Reason: ";
 
-    public static final String INPUT_TARGET_MSG = "Please enter valid value for exchange.";
     public static final String INPUT_VALUE_MSG = "Enter value: ";
     public static final String INPUT_BASE_MSG = "Insert base currency: ";
+    public static final String INPUT_TARGET_MSG = "Insert target currency: ";
     public static final String INPUT_OPTION_MSG = "Type option here: ";
 
     public static final String EXCHANGE_FORMAT = "%.4f %s -> %.4f %s";

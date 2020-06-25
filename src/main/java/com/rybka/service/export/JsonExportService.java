@@ -2,12 +2,12 @@ package com.rybka.service.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.constant.ExportType;
-import com.rybka.constant.FileUtils;
+import com.rybka.constant.Messages;
+import com.rybka.util.FileUtils;
 import com.rybka.constant.PropertyInfo;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -28,10 +28,10 @@ public class JsonExportService implements ExportService {
     public void export(List<CurrencyHistory> histories) {
         try {
             Files.write(buildExportPath(), objectMapper.writeValueAsString(histories).getBytes());
-            log.info("Exporting history to JSON file");
+            log.info(String.format(Messages.LOG_EXPORT_INFO_MSG, ExportType.JSON_EXPORT_TYPE));
         } catch (IOException e) {
-            log.error("Unable to export data to JSON. Reason: " + e.getMessage());
-            throw new ExportFailureException("Unable to export data to JSON. Reason: " + e.getMessage());
+            log.error(String.format(Messages.EXPORT_EXCEPTION_MSG, ExportType.JSON_EXPORT_TYPE) + e.getMessage());
+            throw new ExportFailureException(String.format(Messages.EXPORT_EXCEPTION_MSG, ExportType.JSON_EXPORT_TYPE) + e.getMessage());
         }
     }
 

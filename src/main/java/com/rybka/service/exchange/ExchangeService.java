@@ -1,6 +1,7 @@
 package com.rybka.service.exchange;
 
 import com.rybka.constant.ExchangeType;
+import com.rybka.constant.Messages;
 import com.rybka.constant.PropertyInfo;
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
@@ -21,21 +22,24 @@ import java.util.stream.Collectors;
 @Service
 @Data
 @AllArgsConstructor
-public class ExchangeService {
+public class ExchangeService implements Exchangeable {
     private BaseCurrencyExchangeConnector connectorService;
     private final Environment environment;
     private Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap;
 
+    @Override
     public CurrencyData loadCurrencyOf(String userBaseCurrency, String userTargetCurrency) {
         var exchangeResponse = connectorService.retrieveRates(userBaseCurrency);
-        var targetCurrency = retrieveTargetCurrency(exchangeResponse, userTargetCurrency).orElseThrow(() -> new MissedBaseCurrencyException("Target currency not found!"));
+        var targetCurrency = retrieveTargetCurrency(exchangeResponse, userTargetCurrency).orElseThrow(() -> new MissedBaseCurrencyException(Messages.BASE_CURRENCY_EXCEPTION_MSG));
         return new CurrencyData(userBaseCurrency, targetCurrency.getKey(), targetCurrency.getValue());
     }
 
+    @Override
     public Double calculateTotal(Double rate, Double amount) {
         return rate * amount;
     }
 
+    @Override
     public ExchangeResultData retrieveTopCurrency(String base, String exchangeType, double count) {
         var topCurrencyList = exchangeTypeMap.getOrDefault(exchangeType, this::sellBaseCurrency).apply(base, count);
 
@@ -56,7 +60,7 @@ public class ExchangeService {
         var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
 
         return Arrays.stream(popularCurrencyList)
-                .map(s -> obtainBuyBaseForTopCurrency(s, base, count))
+                .map(topCurrency -> obtainBuyBaseForTopCurrency(topCurrency, base, count))
                 .collect(Collectors.toList());
     }
 
@@ -64,7 +68,7 @@ public class ExchangeService {
         var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
 
         return Arrays.stream(popularCurrencyList)
-                .map(s -> obtainSellBaseForTopCurrency(s, base, count))
+                .map(topCurrency -> obtainSellBaseForTopCurrency(topCurrency, base, count))
                 .collect(Collectors.toList());
     }
 

@@ -1,7 +1,8 @@
 package com.rybka.command;
 
 import com.rybka.constant.CommandConstants;
-import com.rybka.dao.CurrencyHistoryRepository;
+import com.rybka.constant.Messages;
+import com.rybka.repository.CurrencyHistoryRepository;
 import com.rybka.exception.DBConnectionException;
 import com.rybka.exception.IncorrectUserDataException;
 import com.rybka.model.CurrencyHistory;
@@ -31,7 +32,7 @@ public class ConvertCommand implements Command {
             print(convertedResult);
             save(convertedResult);
         } catch (Exception exception) {
-            log.error("Some issues have been occurred during conversion. Reason: " + exception.getMessage());
+            log.error(Messages.LOG_CONVERSION_ERROR_MSG + exception.getMessage());
         }
     }
 
@@ -54,30 +55,30 @@ public class ConvertCommand implements Command {
         try {
             currencyHistoryRepository.save(currencyHistory);
         } catch (Exception exception) {
-            log.error("Unable to connect to DB while performing action. Reason: " + exception.getMessage());
-            throw new DBConnectionException("Connection isn't set.");
+            log.error(Messages.LOG_CONNECTION_ERROR_MSG + exception.getMessage());
+            throw new DBConnectionException(Messages.DB_CONNECTION_EXCEPTION_MSG);
         }
     }
 
     private UserConvertData readUserParameters() {
         try {
-            System.out.print("Insert base currency: ");
+            System.out.print(Messages.INPUT_BASE_MSG);
             var userBaseCurrency = scanner.next().toUpperCase();
-            System.out.print("Enter value: ");
+            System.out.print(Messages.INPUT_VALUE_MSG);
             var userValue = scanner.nextDouble();
-            System.out.print("Insert target currency: ");
+            System.out.print(Messages.INPUT_TARGET_MSG);
             var userTargetCurrency = scanner.next().toUpperCase();
 
             return new UserConvertData(userBaseCurrency, userTargetCurrency, userValue);
 
         } catch (InputMismatchException exception) {
-            log.error("Please enter valid value for exchange.");
-            throw new IncorrectUserDataException("Entered data are invalid.");
+            log.error(Messages.LOG_INVALID_VALUE_ERROR_MSG);
+            throw new IncorrectUserDataException(Messages.USER_DATA_EXCEPTION_MSG);
         }
     }
 
     private void showExchange(CurrencyHistory currencyHistory) {
-        log.info(String.format("%.4f %s -> %.4f %s", currencyHistory.getAmount(),
+        log.info(String.format(Messages.EXCHANGE_FORMAT, currencyHistory.getAmount(),
                 currencyHistory.getBase(), currencyHistory.getTotal(),
                 currencyHistory.getTarget()));
     }
