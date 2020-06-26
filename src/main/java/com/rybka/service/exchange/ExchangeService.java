@@ -1,8 +1,8 @@
 package com.rybka.service.exchange;
 
+import com.rybka.configuration.ExchangeProperty;
 import com.rybka.constant.ExchangeType;
 import com.rybka.constant.Messages;
-import com.rybka.constant.PropertyInfo;
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeResponse;
@@ -11,7 +11,6 @@ import com.rybka.model.TopCurrencyData;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ExchangeService implements Exchangeable {
     private BaseCurrencyExchangeConnector connectorService;
-    private final Environment environment;
+    private ExchangeProperty exchangeProperty;
     private Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap;
 
     @Override
@@ -57,7 +56,7 @@ public class ExchangeService implements Exchangeable {
     }
 
     private List<TopCurrencyData> buyBaseCurrency(String base, double count) {
-        var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
+        var popularCurrencyList = Objects.requireNonNull(exchangeProperty.getCurrency()).split(",");
 
         return Arrays.stream(popularCurrencyList)
                 .map(topCurrency -> obtainBuyBaseForTopCurrency(topCurrency, base, count))
@@ -65,7 +64,7 @@ public class ExchangeService implements Exchangeable {
     }
 
     private List<TopCurrencyData> sellBaseCurrency(String base, double count) {
-        var popularCurrencyList = Objects.requireNonNull(environment.getProperty(PropertyInfo.PROPERTY_EXCHANGE_CURRENCY)).split(",");
+        var popularCurrencyList = Objects.requireNonNull(exchangeProperty.getCurrency()).split(",");
 
         return Arrays.stream(popularCurrencyList)
                 .map(topCurrency -> obtainSellBaseForTopCurrency(topCurrency, base, count))
