@@ -1,19 +1,17 @@
 package com.rybka;
 
-import com.rybka.configuration.ApplicationConfiguration;
-import com.rybka.configuration.PersistenceJPAConfiguration;
 import com.rybka.view.ExchangeView;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
+@ConfigurationPropertiesScan
+@SpringBootApplication
 public class Application {
 
     public static void main(String[] args) {
-
-        var context = new AnnotationConfigApplicationContext(
-                ApplicationConfiguration.class,
-                PersistenceJPAConfiguration.class);
-
-        var view = (ExchangeView) context.getBean("exchangeView");
+        var context = SpringApplication.run(Application.class, args);
+        var view = context.getBean(ExchangeView.class);
 
         while (true) {
             view.showView();

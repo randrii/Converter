@@ -1,5 +1,5 @@
 .idea/
 target/
-src/test/
+test/
 *.iml
 *.class

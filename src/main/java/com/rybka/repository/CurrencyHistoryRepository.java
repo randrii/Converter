@@ -1,4 +1,4 @@
-package com.rybka.dao;
+package com.rybka.repository;
 
 import com.rybka.model.CurrencyHistory;
 import org.springframework.data.jpa.repository.JpaRepository;

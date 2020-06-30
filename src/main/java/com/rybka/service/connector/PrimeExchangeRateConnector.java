@@ -3,10 +3,11 @@ package com.rybka.service.connector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.constant.CurrencyAPIConstants;
 import com.rybka.constant.ExchangeSource;
+import com.rybka.constant.Messages;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -15,7 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 @Component(ExchangeSource.PRIME_EXCHANGE_SOURCE)
-@Log4j
+@Slf4j
 @RequiredArgsConstructor
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
     private final HttpClient httpClient;
@@ -33,8 +34,8 @@ public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector
 
             return objectMapper.readValue(response.body(), ExchangeResponse.class);
         } catch (Exception exception) {
-            log.error("Error while calling Prime Exchange Rate API service. Reason: " + exception.getMessage());
-            throw new CurrencyAPICallException("An error appears while calling Prime Exchange Rate API. Reason: " + exception.getMessage());
+            log.error(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.PRIME_EXCHANGE_SOURCE) + exception.getMessage());
+            throw new CurrencyAPICallException(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.PRIME_EXCHANGE_SOURCE) + exception.getMessage());
         }
     }
 }
