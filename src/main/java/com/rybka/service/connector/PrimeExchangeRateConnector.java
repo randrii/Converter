@@ -1,12 +1,12 @@
 package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.constant.CurrencyAPIConstants;
+import com.rybka.configuration.ApplicationProperties;
 import com.rybka.constant.ExchangeSource;
 import com.rybka.constant.Messages;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +17,16 @@ import java.net.http.HttpResponse;
 
 @Component(ExchangeSource.PRIME_EXCHANGE_SOURCE)
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final ApplicationProperties applicationProperties;
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
-        String url = String.format(CurrencyAPIConstants.PRIME_EXCHANGE_RATE_API_URL,
-                CurrencyAPIConstants.PRIME_EXCHANGE_RATE_API_KEY, userBaseCurrency);
+        String url = applicationProperties.getSchema() +
+                applicationProperties.getHost() + String.format(applicationProperties.getEndpoint(),
+                applicationProperties.getToken(), userBaseCurrency);
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
