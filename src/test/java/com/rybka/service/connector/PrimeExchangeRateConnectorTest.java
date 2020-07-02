@@ -3,14 +3,16 @@ package com.rybka.service.connector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.rybka.configuration.ApplicationProperties;
+import com.rybka.configuration.WireMockInitializer;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.net.http.HttpClient;
 
@@ -19,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-class PrimeExchangeRateConnectorTest {
-
+@SpringBootTest
+@ContextConfiguration(initializers = WireMockInitializer.class)
+public class PrimeExchangeRateConnectorTest {
+    @Autowired
+    private WireMockServer wireMockServer;
     @Mock
     private ApplicationProperties applicationProperties;
     private PrimeExchangeRateConnector connector;
@@ -31,8 +35,6 @@ class PrimeExchangeRateConnectorTest {
     @BeforeEach
     public void setUp() {
         connector = new PrimeExchangeRateConnector(httpClient, objectMapper, applicationProperties);
-        var wireMockServer = new WireMockServer();
-        wireMockServer.start();
 
         when(applicationProperties.getHost()).thenReturn(wireMockServer.baseUrl());
         when(applicationProperties.getEndpoint()).thenReturn("/v5/%s/latest/%s");
@@ -56,7 +58,7 @@ class PrimeExchangeRateConnectorTest {
         var actualResult = objectMapper.readValue(json, ExchangeResponse.class);
 
         configureFor("localhost", 8080);
-        stubFor(get(urlEqualTo(primeUrl))
+        wireMockServer.stubFor(get(urlEqualTo(primeUrl))
                 .willReturn(aResponse().withBody(json)));
 
         // when
@@ -75,7 +77,7 @@ class PrimeExchangeRateConnectorTest {
         var primeUrl = String.format("/v5/%s/latest/%s", "4e0bbdc44fcdf05612fa0882", currencyBase);
 
         configureFor("localhost", 8080);
-        stubFor(get(urlEqualTo(primeUrl)).willReturn(aResponse().withBody("")));
+        wireMockServer.stubFor(get(urlEqualTo(primeUrl)).willReturn(aResponse().withBody("")));
 
         // then
         assertThrows(CurrencyAPICallException.class, () -> connector.retrieveRates(currencyBase));
