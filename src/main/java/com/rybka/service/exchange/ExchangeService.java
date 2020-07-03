@@ -9,8 +9,8 @@ import com.rybka.model.ExchangeResponse;
 import com.rybka.model.ExchangeResultData;
 import com.rybka.model.TopCurrencyData;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ExchangeService implements Exchangeable {
-    private BaseCurrencyExchangeConnector connectorService;
-    private ExchangeProperty exchangeProperty;
+    private final BaseCurrencyExchangeConnector connectorService;
+    private final ExchangeProperty exchangeProperty;
     private Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap;
 
     @Override
@@ -51,6 +51,7 @@ public class ExchangeService implements Exchangeable {
 
     @PostConstruct
     public void initExchangeTypeMap() {
+        exchangeTypeMap = new HashMap<>();
         exchangeTypeMap.put(ExchangeType.BUY.name(), this::buyBaseCurrency);
         exchangeTypeMap.put(ExchangeType.SELL.name(), this::sellBaseCurrency);
     }

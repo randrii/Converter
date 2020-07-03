@@ -3,7 +3,6 @@ package com.rybka.service.exchange;
 import com.rybka.configuration.ExchangeProperty;
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.ExchangeResponse;
-import com.rybka.model.TopCurrencyData;
 import com.rybka.service.connector.ExchangeRateConnector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -93,9 +89,7 @@ class ExchangeServiceTest {
         var currencyRate = 0.89;
         var topCurrencies = "UAH,USD,EUR,PLN";
         var response = constructResponse(currencyBase, Map.of(currencyTarget, currencyRate));
-        Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap = new HashMap<>();
 
-        exchangeService.setExchangeTypeMap(exchangeTypeMap);
         exchangeService.initExchangeTypeMap();
 
         when(exchangeProperty.getCurrency()).thenReturn(topCurrencies);
@@ -119,9 +113,7 @@ class ExchangeServiceTest {
         var currencyRate = 0.89;
         var topCurrencies = "UAH,USD,EUR,PLN";
         var response = constructResponse(currencyBase, Map.of(currencyTarget, currencyRate));
-        Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap = new HashMap<>();
 
-        exchangeService.setExchangeTypeMap(exchangeTypeMap);
         exchangeService.initExchangeTypeMap();
 
         when(exchangeProperty.getCurrency()).thenReturn(topCurrencies);

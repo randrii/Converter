@@ -12,12 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.http.HttpClient;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,8 +51,8 @@ public class PrimeExchangeRateConnectorTest {
         // given
         var currencyBase = "USD";
         var primeUrl = String.format("/v5/%s/latest/%s", "4e0bbdc44fcdf05612fa0882", currencyBase);
-        var testJsonPath = "src/test/resources/primeExchangeResponseTest.json";
-        var primeExchangeApiResponseJson = convertJsonIntoString(testJsonPath);
+        var testJsonFile = "primeExchangeResponseTest.json";
+        var primeExchangeApiResponseJson = retrieveResource(testJsonFile);
         var actualResult = objectMapper.readValue(primeExchangeApiResponseJson, ExchangeResponse.class);
 
         wireMockServer.stubFor(get(urlEqualTo(primeUrl))
@@ -81,9 +80,9 @@ public class PrimeExchangeRateConnectorTest {
     }
 
     @SneakyThrows
-    private String convertJsonIntoString(String path) {
-        Path filePath = Paths.get(path);
+    private String retrieveResource(String fileName) {
+        var testFile = new ClassPathResource(fileName);
 
-        return Files.readString(filePath);
+        return Files.readString(testFile.getFile().toPath());
     }
 }
