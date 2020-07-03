@@ -1,0 +1,11 @@
+{
+  "result": "success",
+  "time_last_update": 1593734403,
+  "time_next_update": 1593820923,
+  "base": "USD",
+  "conversion_rates": {
+    "USD": 1,
+    "UAH": 26.9793,
+    "EUR": 0.8877
+  }
+}

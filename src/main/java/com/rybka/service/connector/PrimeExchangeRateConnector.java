@@ -1,7 +1,7 @@
 package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.constant.CurrencyAPIConstants;
+import com.rybka.configuration.PrimeExchangeConnectorProperties;
 import com.rybka.constant.ExchangeSource;
 import com.rybka.constant.Messages;
 import com.rybka.exception.CurrencyAPICallException;
@@ -21,10 +21,11 @@ import java.net.http.HttpResponse;
 public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final PrimeExchangeConnectorProperties primeExchangeConnectorProperties;
 
     public ExchangeResponse retrieveRates(String userBaseCurrency) {
-        String url = String.format(CurrencyAPIConstants.PRIME_EXCHANGE_RATE_API_URL,
-                CurrencyAPIConstants.PRIME_EXCHANGE_RATE_API_KEY, userBaseCurrency);
+        String url = constructPrimeExchangeApiUrl(userBaseCurrency);
+
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -37,5 +38,11 @@ public class PrimeExchangeRateConnector implements BaseCurrencyExchangeConnector
             log.error(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.PRIME_EXCHANGE_SOURCE) + exception.getMessage());
             throw new CurrencyAPICallException(String.format(Messages.API_CALL_EXCEPTION_MSG, ExchangeSource.PRIME_EXCHANGE_SOURCE) + exception.getMessage());
         }
+    }
+
+    private String constructPrimeExchangeApiUrl(String userBaseCurrency) {
+        return primeExchangeConnectorProperties.getSchema() +
+                primeExchangeConnectorProperties.getHost() + String.format(primeExchangeConnectorProperties.getEndpoint(),
+                primeExchangeConnectorProperties.getToken(), userBaseCurrency);
     }
 }
