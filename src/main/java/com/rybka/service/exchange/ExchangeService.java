@@ -50,7 +50,7 @@ public class ExchangeService implements Exchangeable {
     }
 
     @PostConstruct
-    private void initExchangeTypeMap() {
+    public void initExchangeTypeMap() {
         exchangeTypeMap.put(ExchangeType.BUY.name(), this::buyBaseCurrency);
         exchangeTypeMap.put(ExchangeType.SELL.name(), this::sellBaseCurrency);
     }

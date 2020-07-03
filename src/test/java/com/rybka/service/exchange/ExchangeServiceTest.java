@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashMap;
@@ -95,9 +96,36 @@ class ExchangeServiceTest {
         Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap = new HashMap<>();
 
         exchangeService.setExchangeTypeMap(exchangeTypeMap);
+        exchangeService.initExchangeTypeMap();
 
         when(exchangeProperty.getCurrency()).thenReturn(topCurrencies);
         when(exchangeRateConnector.retrieveRates(currencyBase)).thenReturn(response);
+
+        // when
+        var actualResult = exchangeService.retrieveTopCurrency(currencyBase, exchangeType, currencyAmount);
+
+        // then
+        assertEquals(currencyAmount, actualResult.getTopCurrencyDataList().size());
+    }
+
+    @Test
+    public void testOnBuyingTopCurrency() {
+
+        // given
+        var currencyAmount = 4d;
+        var currencyBase = "USD";
+        var exchangeType = "BUY";
+        var currencyTarget = "EUR";
+        var currencyRate = 0.89;
+        var topCurrencies = "UAH,USD,EUR,PLN";
+        var response = constructResponse(currencyBase, Map.of(currencyTarget, currencyRate));
+        Map<String, BiFunction<String, Double, List<TopCurrencyData>>> exchangeTypeMap = new HashMap<>();
+
+        exchangeService.setExchangeTypeMap(exchangeTypeMap);
+        exchangeService.initExchangeTypeMap();
+
+        when(exchangeProperty.getCurrency()).thenReturn(topCurrencies);
+        when(exchangeRateConnector.retrieveRates(Mockito.anyString())).thenReturn(response);
 
         // when
         var actualResult = exchangeService.retrieveTopCurrency(currencyBase, exchangeType, currencyAmount);

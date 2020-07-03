@@ -2,7 +2,7 @@ package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.rybka.configuration.ApplicationProperties;
+import com.rybka.configuration.PrimeExchangeConnectorProperties;
 import com.rybka.configuration.WireMockInitializer;
 import com.rybka.exception.CurrencyAPICallException;
 import com.rybka.model.ExchangeResponse;
@@ -15,6 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.http.HttpClient;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,19 +30,19 @@ public class PrimeExchangeRateConnectorTest {
     @Autowired
     private WireMockServer wireMockServer;
     @Mock
-    private ApplicationProperties applicationProperties;
+    private PrimeExchangeConnectorProperties primeExchangeConnectorProperties;
     private PrimeExchangeRateConnector connector;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @BeforeEach
     public void setUp() {
-        connector = new PrimeExchangeRateConnector(httpClient, objectMapper, applicationProperties);
+        connector = new PrimeExchangeRateConnector(httpClient, objectMapper, primeExchangeConnectorProperties);
 
-        when(applicationProperties.getHost()).thenReturn(wireMockServer.baseUrl());
-        when(applicationProperties.getEndpoint()).thenReturn("/v5/%s/latest/%s");
-        when(applicationProperties.getSchema()).thenReturn("");
-        when(applicationProperties.getToken()).thenReturn("4e0bbdc44fcdf05612fa0882");
+        when(primeExchangeConnectorProperties.getHost()).thenReturn(wireMockServer.baseUrl());
+        when(primeExchangeConnectorProperties.getEndpoint()).thenReturn("/v5/%s/latest/%s");
+        when(primeExchangeConnectorProperties.getSchema()).thenReturn("");
+        when(primeExchangeConnectorProperties.getToken()).thenReturn("4e0bbdc44fcdf05612fa0882");
     }
 
     @SneakyThrows
@@ -48,18 +51,13 @@ public class PrimeExchangeRateConnectorTest {
 
         // given
         var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.893333;
         var primeUrl = String.format("/v5/%s/latest/%s", "4e0bbdc44fcdf05612fa0882", currencyBase);
-        var json = "{" +
-                "  \"rates\": {" +
-                "    \"" + currencyTarget + "\": " + currencyRate + "  }" +
-                "}";
-        var actualResult = objectMapper.readValue(json, ExchangeResponse.class);
+        var testJsonPath = "src/test/resources/primeExchangeResponseTest.json";
+        var primeExchangeApiResponseJson = convertJsonIntoString(testJsonPath);
+        var actualResult = objectMapper.readValue(primeExchangeApiResponseJson, ExchangeResponse.class);
 
-        configureFor("localhost", 8080);
         wireMockServer.stubFor(get(urlEqualTo(primeUrl))
-                .willReturn(aResponse().withBody(json)));
+                .willReturn(aResponse().withBody(primeExchangeApiResponseJson)));
 
         // when
         var result = connector.retrieveRates(currencyBase);
@@ -68,18 +66,24 @@ public class PrimeExchangeRateConnectorTest {
         assertEquals(result, actualResult);
     }
 
-    @SneakyThrows
     @Test
     public void testOnException() {
 
         // given
         var currencyBase = "USD";
         var primeUrl = String.format("/v5/%s/latest/%s", "4e0bbdc44fcdf05612fa0882", currencyBase);
+        var brokenPrimeExchangeApiResponseJson = "";
 
-        configureFor("localhost", 8080);
-        wireMockServer.stubFor(get(urlEqualTo(primeUrl)).willReturn(aResponse().withBody("")));
+        wireMockServer.stubFor(get(urlEqualTo(primeUrl)).willReturn(aResponse().withBody(brokenPrimeExchangeApiResponseJson)));
 
         // then
         assertThrows(CurrencyAPICallException.class, () -> connector.retrieveRates(currencyBase));
+    }
+
+    @SneakyThrows
+    private String convertJsonIntoString(String path) {
+        Path filePath = Paths.get(path);
+
+        return Files.readString(filePath);
     }
 }

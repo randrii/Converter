@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @Getter
 @ConfigurationProperties(prefix = "prime.exchange.connector")
-public class ApplicationProperties {
+public class PrimeExchangeConnectorProperties {
     private String host;
     private String endpoint;
     private String schema;
