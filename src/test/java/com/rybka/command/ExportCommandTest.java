@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.verify;
@@ -50,7 +51,7 @@ public class ExportCommandTest {
     public void testOnExportExecution() {
 
         // given
-        var exportType = "csvs";
+        var exportType = "csv";
         var command = new ExportCommand(exportProperty, exportConfigMap, currencyHistoryRepository);
 
         when(currencyHistoryRepository.findAll()).thenReturn(new ArrayList<>());
@@ -71,7 +72,7 @@ public class ExportCommandTest {
         var incorrectExportType = "xml";
         var command = new ExportCommand(exportProperty, exportConfigMap, currencyHistoryRepository);
 
-        when(currencyHistoryRepository.findAll()).thenReturn(new ArrayList<>());
+        when(currencyHistoryRepository.findAll()).thenReturn(List.of());
         when(exportProperty.getType()).thenReturn(incorrectExportType);
 
         // then
