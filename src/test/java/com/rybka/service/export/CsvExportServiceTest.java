@@ -13,94 +13,126 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 public class CsvExportServiceTest {
 
-    private final CsvMapper csvMapper = new CsvMapper();
     @Mock
     private ExportProperty exportProperty;
+    @Mock
+    private CsvMapper mapper;
+    private final CsvMapper csvMapper = new CsvMapper();
+    private final Random random = new Random();
+    private CsvExportService csvExportService;
 
     @Test
     public void testOnProperExport() {
 
         // given
-        var testFolder = "src/test/resources/";
-        var testType = "csv";
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 4d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var currencyHistory = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        currencyHistory.setDate(Calendar.getInstance().getTime());
-        var testList = List.of(currencyHistory);
-        var csvExportService = new CsvExportService(csvMapper, exportProperty);
+        var resourceFolder = "src/test/resources/";
+        var tempFolderPath = Paths.get(resourceFolder + random.nextInt() + "/");
+        var tempFolder = createTestDirectory(tempFolderPath);
+        var exportType = "csv";
+        var historyList = List.of(buildRandomHistory(), buildRandomHistory());
 
-        when(exportProperty.getFolder()).thenReturn(testFolder);
-        when(exportProperty.getType()).thenReturn(testType);
+        csvExportService = new CsvExportService(csvMapper, exportProperty);
+
+        when(exportProperty.getFolder()).thenReturn(tempFolder.toString() + "/");
+        when(exportProperty.getType()).thenReturn(exportType);
 
         // when
-        csvExportService.export(testList);
-        Path testFilePath = findSavedFile(testFolder, testType);
+        csvExportService.export(historyList);
+        var testFilePath = findSavedFile(tempFolder);
         var actualResult = readSavedFile(testFilePath);
 
         // then
         verify(exportProperty).getType();
         verify(exportProperty).getFolder();
 
-        Assertions.assertEquals(currencyRate, actualResult.getRate());
+        Assertions.assertEquals(historyList.size(), actualResult.size());
 
         removeSavedFile(testFilePath);
+        removeSavedFile(tempFolderPath);
     }
 
+    @SneakyThrows
     @Test
     public void testOnExportException() {
 
         // given
-        var testType = "csv";
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 4d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var currencyHistory = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        currencyHistory.setDate(Calendar.getInstance().getTime());
-        var testList = List.of(currencyHistory);
-        var csvExportService = new CsvExportService(csvMapper, exportProperty);
+        var resourceFolder = "src/test/resources/";
+        var tempFolderPath = Paths.get(resourceFolder + random.nextInt() + "/");
+        var tempFolder = createTestDirectory(tempFolderPath);
+        var exportType = "csv";
+        var historyList = List.of(buildRandomHistory());
+        var csvSchema = CsvSchema.emptySchema();
 
-        when(exportProperty.getFolder()).thenThrow(ExportFailureException.class);
-        when(exportProperty.getType()).thenReturn(testType);
+        csvExportService = new CsvExportService(mapper, exportProperty);
+
+        when(exportProperty.getFolder()).thenReturn(tempFolder.toString() + "/");
+        when(exportProperty.getType()).thenReturn(exportType);
+        when(mapper.schemaFor(eq(CurrencyHistory.class))).thenReturn(csvSchema);
+        when(mapper.writer(any(CsvSchema.class))).thenReturn(csvMapper.writer());
+
+        // when
+        doThrow(ExportFailureException.class).when(mapper).writeValue(any(BufferedWriter.class), any(List.class));
 
         // then
         verifyNoInteractions(exportProperty);
         verifyNoInteractions(exportProperty);
 
-        Assertions.assertThrows(ExportFailureException.class, () -> csvExportService.export(testList));
+        Assertions.assertThrows(ExportFailureException.class, () -> csvExportService.export(historyList));
+
+        var testFilePath = findSavedFile(tempFolder);
+
+        removeSavedFile(testFilePath);
+        removeSavedFile(tempFolderPath);
+    }
+
+    private CurrencyHistory buildRandomHistory() {
+        var currencyList = List.of("USD", "EUR", "PLN", "CAD", "UAH");
+        var currencyBase = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyTarget = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyRate = random.nextDouble();
+        var currencyAmount = random.nextInt();
+        var total = currencyRate * currencyAmount;
+        var history = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, total);
+        history.setDate(Calendar.getInstance().getTime());
+
+        return history;
     }
 
     @SneakyThrows
-    private Path findSavedFile(String testFolder, String testType) {
-        var testFolderPath = Paths.get(testFolder);
-        var matches = Files.find(testFolderPath, 2, ((path, basicFileAttributes) -> path.getFileName().toString().endsWith(testType)));
-
-        return Path.of(testFolder, matches.map(Path::getFileName).findFirst().get().toString());
+    private Path createTestDirectory(Path path) {
+        return Files.createDirectory(path);
     }
 
     @SneakyThrows
-    private CurrencyHistory readSavedFile(Path path) {
-        var actualResult = Files.readAllLines(path).get(1);
-        CsvSchema csvSchema = csvMapper.schemaFor(CurrencyHistory.class);
-        ObjectReader reader = csvMapper.reader(csvSchema.withLineSeparator("\n"));
+    private Path findSavedFile(Path path) {
+        return Files.list(path).findFirst().get();
+    }
 
-        return reader.readValue(actualResult, CurrencyHistory.class);
+    @SneakyThrows
+    private List<CurrencyHistory> readSavedFile(Path path) {
+        CsvSchema csvSchema = csvMapper.schemaFor(CurrencyHistory.class).withSkipFirstDataRow(true).withLineSeparator("\n");
+        ObjectReader reader = csvMapper.readerFor(CurrencyHistory.class).with(csvSchema);
+        List<CurrencyHistory> historyList = new ArrayList<>();
+        var iterator = reader.readValues(path.toFile());
+
+        while (iterator.hasNextValue()) {
+            historyList.add((CurrencyHistory) iterator.next());
+        }
+        return historyList;
     }
 
     @SneakyThrows

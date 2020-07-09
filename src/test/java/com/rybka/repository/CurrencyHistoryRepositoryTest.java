@@ -1,5 +1,6 @@
 package com.rybka.repository;
 
+import com.google.common.collect.Lists;
 import com.rybka.model.CurrencyHistory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,35 +23,20 @@ class CurrencyHistoryRepositoryTest {
     public void testOnCorrectHistorySave() {
 
         // given
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 5d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var testData = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
+        var history = buildRandomHistory();
 
         // when
-        var savedData = repository.save(testData);
+        var savedData = repository.save(history);
 
         // then
-        assertEquals(testData.getBase(), savedData.getBase());
+        assertEquals(history, savedData);
     }
 
     @Test
     public void testOnCorrectHistoryFindAll() {
 
         // given
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 5d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var testData = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        var emptyTestHistory = new CurrencyHistory();
-        var expectedResultListSize = 2;
-
-        repository.save(testData);
-        repository.save(emptyTestHistory);
+        var expectedResultListSize = repository.saveAll(List.of(buildRandomHistory(), buildRandomHistory())).size();
 
         // when
         var actualResultList = repository.findAll();
@@ -62,25 +49,20 @@ class CurrencyHistoryRepositoryTest {
     public void testOnCorrectHistoryFindTop5() {
 
         // given
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 5d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var testData = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        var expectedResultListSize = 5;
-        var testHistoryList = List.of(
-                testData, new CurrencyHistory(), new CurrencyHistory(), new CurrencyHistory(), new CurrencyHistory(), new CurrencyHistory()
-        );
-
-        repository.saveAll(testHistoryList);
+        var historyTop5List = new java.util.ArrayList<>(List.of(
+                buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
+        ));
+        var historyOtherList = new java.util.ArrayList<>(List.of(
+                buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
+        ));
+        repository.saveAll(historyOtherList);
+        repository.saveAll(historyTop5List);
 
         // when
         var actualResultList = repository.findTop5ByOrderByIdDesc();
 
         // then
-        assertFalse(actualResultList.contains(testData));
-        assertEquals(expectedResultListSize, actualResultList.size());
+        assertEquals(Lists.reverse(historyTop5List), actualResultList);
     }
 
     @Test
@@ -96,27 +78,15 @@ class CurrencyHistoryRepositoryTest {
         assertEquals(expectedZeroResultListSize, actualResultList.size());
     }
 
-    @Test
-    void testOnNotEnoughHistoryTop5() {
+    private CurrencyHistory buildRandomHistory() {
+        var currencyList = List.of("USD", "EUR", "PLN", "CAD", "UAH");
+        var random = new Random();
+        var currencyBase = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyTarget = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyRate = random.nextDouble();
+        var currencyAmount = random.nextInt();
+        var total = currencyRate * currencyAmount;
 
-        // given
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 5d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var testData = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        var expectedResultListSize = 4;
-        var testHistoryList = List.of(
-                new CurrencyHistory(), new CurrencyHistory(), new CurrencyHistory(), testData
-        );
-
-        repository.saveAll(testHistoryList);
-
-        // when
-        var actualResultList = repository.findTop5ByOrderByIdDesc();
-
-        // then
-        assertEquals(expectedResultListSize, actualResultList.size());
+        return new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, total);
     }
 }

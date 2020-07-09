@@ -16,66 +16,66 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class JsonExportServiceTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     @Mock
     private ExportProperty exportProperty;
+    @Mock
+    private ObjectMapper mapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Random random = new Random();
+    private JsonExportService jsonExportService;
 
     @Test
     public void testOnProperExport() {
 
         // given
-        var testFolder = "src/test/resources/";
-        var testType = "json";
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 4d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var currencyHistory = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        currencyHistory.setDate(Calendar.getInstance().getTime());
-        var testList = List.of(currencyHistory);
-        var jsonExportService = new JsonExportService(objectMapper, exportProperty);
+        var resourceFolder = "src/test/resources/";
+        var tempFolderPath = Paths.get(resourceFolder + random.nextInt() + "/");
+        var tempFolder = createTestDirectory(tempFolderPath);
+        var exportType = "json";
+        var history = buildRandomHistory();
+        var testList = List.of(history);
+        jsonExportService = new JsonExportService(objectMapper, exportProperty);
 
-        when(exportProperty.getFolder()).thenReturn(testFolder);
-        when(exportProperty.getType()).thenReturn(testType);
+        when(exportProperty.getFolder()).thenReturn(tempFolder.toString() + "/");
+        when(exportProperty.getType()).thenReturn(exportType);
 
         // when
         jsonExportService.export(testList);
-        Path testFilePath = findSavedFile(testFolder, testType);
+        Path testFilePath = findSavedFile(tempFolder);
         var actualResult = readSavedFile(testFilePath);
 
         // then
         verify(exportProperty).getType();
         verify(exportProperty).getFolder();
 
-        Assertions.assertEquals(currencyRate, actualResult.getRate());
+        Assertions.assertEquals(history, actualResult);
 
         removeSavedFile(testFilePath);
+        removeSavedFile(tempFolderPath);
     }
 
+    @SneakyThrows
     @Test
     public void testOnExportException() {
 
         // given
-        var testType = "json";
-        var currencyBase = "USD";
-        var currencyTarget = "EUR";
-        var currencyRate = 0.88;
-        var currencyAmount = 4d;
-        var currencyTotal = currencyRate * currencyAmount;
-        var currencyHistory = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, currencyTotal);
-        currencyHistory.setDate(Calendar.getInstance().getTime());
-        var testList = List.of(currencyHistory);
-        var jsonExportService = new JsonExportService(objectMapper, exportProperty);
+        var resourceFolder = "src/test/resources/";
+        var exportType = "json";
+        var testList = List.of(buildRandomHistory());
+        jsonExportService = new JsonExportService(mapper, exportProperty);
 
-        when(exportProperty.getFolder()).thenThrow(ExportFailureException.class);
-        when(exportProperty.getType()).thenReturn(testType);
+        when(exportProperty.getType()).thenReturn(exportType);
+        when(exportProperty.getFolder()).thenReturn(resourceFolder);
+
+        // when
+        when(mapper.writeValueAsString(any(List.class))).thenThrow(ExportFailureException.class);
 
         // then
         verifyNoInteractions(exportProperty);
@@ -84,12 +84,27 @@ class JsonExportServiceTest {
         Assertions.assertThrows(ExportFailureException.class, () -> jsonExportService.export(testList));
     }
 
-    @SneakyThrows
-    private Path findSavedFile(String testFolder, String testType) {
-        var testFolderPath = Paths.get(testFolder);
-        var matches = Files.find(testFolderPath, 2, ((path, basicFileAttributes) -> path.getFileName().toString().endsWith(testType)));
+    private CurrencyHistory buildRandomHistory() {
+        var currencyList = List.of("USD", "EUR", "PLN", "CAD", "UAH");
+        var currencyBase = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyTarget = currencyList.get(random.nextInt(currencyList.size()));
+        var currencyRate = random.nextDouble();
+        var currencyAmount = random.nextInt();
+        var total = currencyRate * currencyAmount;
+        var history = new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, total);
+        history.setDate(Calendar.getInstance().getTime());
 
-        return Path.of(testFolder, matches.map(Path::getFileName).findFirst().get().toString());
+        return history;
+    }
+
+    @SneakyThrows
+    private Path createTestDirectory(Path path) {
+        return Files.createDirectory(path);
+    }
+
+    @SneakyThrows
+    private Path findSavedFile(Path path) {
+        return Files.list(path).findFirst().get();
     }
 
     @SneakyThrows
