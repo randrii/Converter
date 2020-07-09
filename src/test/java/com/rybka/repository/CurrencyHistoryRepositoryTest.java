@@ -1,6 +1,5 @@
 package com.rybka.repository;
 
-import com.google.common.collect.Lists;
 import com.rybka.model.CurrencyHistory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,16 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 class CurrencyHistoryRepositoryTest {
     @Autowired
     private CurrencyHistoryRepository repository;
+    private final Random random = new Random();
 
     @Test
     public void testOnCorrectHistorySave() {
@@ -49,12 +51,12 @@ class CurrencyHistoryRepositoryTest {
     public void testOnCorrectHistoryFindTop5() {
 
         // given
-        var historyTop5List = new java.util.ArrayList<>(List.of(
+        var historyTop5List = List.of(
                 buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
-        ));
-        var historyOtherList = new java.util.ArrayList<>(List.of(
+        );
+        var historyOtherList = List.of(
                 buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
-        ));
+        );
         repository.saveAll(historyOtherList);
         repository.saveAll(historyTop5List);
 
@@ -62,7 +64,11 @@ class CurrencyHistoryRepositoryTest {
         var actualResultList = repository.findTop5ByOrderByIdDesc();
 
         // then
-        assertEquals(Lists.reverse(historyTop5List), actualResultList);
+        var expectedHistoryList = historyTop5List.stream()
+                .sorted(Comparator.comparingInt(CurrencyHistory::getId).reversed())
+                .collect(Collectors.toList());
+
+        assertEquals(expectedHistoryList, actualResultList);
     }
 
     @Test
@@ -80,7 +86,6 @@ class CurrencyHistoryRepositoryTest {
 
     private CurrencyHistory buildRandomHistory() {
         var currencyList = List.of("USD", "EUR", "PLN", "CAD", "UAH");
-        var random = new Random();
         var currencyBase = currencyList.get(random.nextInt(currencyList.size()));
         var currencyTarget = currencyList.get(random.nextInt(currencyList.size()));
         var currencyRate = random.nextDouble();

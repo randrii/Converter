@@ -1,5 +1,6 @@
 package com.rybka.service.export;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rybka.configuration.ExportProperty;
 import com.rybka.exception.ExportFailureException;
@@ -75,7 +76,7 @@ class JsonExportServiceTest {
         when(exportProperty.getFolder()).thenReturn(resourceFolder);
 
         // when
-        when(mapper.writeValueAsString(any(List.class))).thenThrow(ExportFailureException.class);
+        when(mapper.writeValueAsString(any(List.class))).thenThrow(JsonProcessingException.class);
 
         // then
         verifyNoInteractions(exportProperty);
