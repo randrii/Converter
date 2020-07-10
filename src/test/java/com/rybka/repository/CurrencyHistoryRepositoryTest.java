@@ -49,48 +49,23 @@ class CurrencyHistoryRepositoryTest {
     public void testOnCorrectHistoryFindTop5() {
 
         // given
-        var historyTop5List = List.of(
+        var latestHistoryList = List.of(
                 buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
         );
-        var historyOtherList = List.of(
-                buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
+        var oldHistoryList = List.of(
+                buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
         );
 
-        historyOtherList
-                .forEach(history -> {
-                    try {
-                        Thread.sleep(1000);
-                        repository.save(history);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-        historyTop5List
-                .forEach(history -> {
-                    try {
-                        Thread.sleep(1000);
-                        repository.save(history);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-        var expectedTop5HistoryList = repository.findAll();
+        repository.saveAll(oldHistoryList);
+        repository.saveAll(latestHistoryList);
 
         // when
         var actualResultList = repository.findTop5ByOrderByDateDesc();
 
         // then
-        var expectedHistoryList = expectedTop5HistoryList.stream()
-                .sorted(Comparator.comparing(CurrencyHistory::getDate).reversed())
-                .collect(Collectors.toList());
-
-        while (expectedHistoryList.size() > 5) {
-            expectedHistoryList.remove(expectedHistoryList.size() - 1);
-        }
-
-        assertEquals(expectedHistoryList, actualResultList);
+        assertEquals(latestHistoryList.stream().sorted(Comparator.comparing(CurrencyHistory::getId)).collect(Collectors.toList()),
+                actualResultList.stream().sorted(Comparator.comparing(CurrencyHistory::getId)).collect(Collectors.toList())
+        );
     }
 
     @Test
