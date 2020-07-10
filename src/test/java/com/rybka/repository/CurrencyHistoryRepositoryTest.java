@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,16 +55,40 @@ class CurrencyHistoryRepositoryTest {
         var historyOtherList = List.of(
                 buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
         );
-        repository.saveAll(historyOtherList);
-        repository.saveAll(historyTop5List);
+
+        historyOtherList
+                .forEach(history -> {
+                    try {
+                        Thread.sleep(1000);
+                        repository.save(history);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+        historyTop5List
+                .forEach(history -> {
+                    try {
+                        Thread.sleep(1000);
+                        repository.save(history);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+        var expectedTop5HistoryList = repository.findAll();
 
         // when
-        var actualResultList = repository.findTop5ByOrderByIdDesc();
+        var actualResultList = repository.findTop5ByOrderByDateDesc();
 
         // then
-        var expectedHistoryList = historyTop5List.stream()
-                .sorted(Comparator.comparingInt(CurrencyHistory::getId).reversed())
+        var expectedHistoryList = expectedTop5HistoryList.stream()
+                .sorted(Comparator.comparing(CurrencyHistory::getDate).reversed())
                 .collect(Collectors.toList());
+
+        while (expectedHistoryList.size() > 5) {
+            expectedHistoryList.remove(expectedHistoryList.size() - 1);
+        }
 
         assertEquals(expectedHistoryList, actualResultList);
     }

@@ -16,7 +16,7 @@ public class HistoryCommand implements Command {
     @Override
     public void execute() {
         try {
-            var histories = currencyHistoryRepository.findTop5ByOrderByIdDesc();
+            var histories = currencyHistoryRepository.findTop5ByOrderByDateDesc();
             histories.forEach(System.out::println);
         } catch (Exception exception) {
             log.error(Messages.LOG_HISTORY_ERROR_MSG + exception.getMessage());
