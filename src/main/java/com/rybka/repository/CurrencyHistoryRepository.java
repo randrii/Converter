@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CurrencyHistoryRepository extends JpaRepository<CurrencyHistory, Integer> {
-    List<CurrencyHistory> findTop5ByOrderByIdDesc();
+    List<CurrencyHistory> findTop5ByOrderByDateDesc();
 }

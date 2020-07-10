@@ -21,12 +21,12 @@ public class HistoryCommandTest {
     public void testHistoryExecution() {
 
         // given
-        Mockito.when(repository.findTop5ByOrderByIdDesc()).thenReturn(List.of());
+        Mockito.when(repository.findTop5ByOrderByDateDesc()).thenReturn(List.of());
 
         // when
         command.execute();
 
         //then
-        Mockito.verify(repository).findTop5ByOrderByIdDesc();
+        Mockito.verify(repository).findTop5ByOrderByDateDesc();
     }
 }

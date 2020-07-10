@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,24 +49,23 @@ class CurrencyHistoryRepositoryTest {
     public void testOnCorrectHistoryFindTop5() {
 
         // given
-        var historyTop5List = List.of(
+        var latestHistoryList = List.of(
                 buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
         );
-        var historyOtherList = List.of(
-                buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
+        var oldHistoryList = List.of(
+                buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory()
         );
-        repository.saveAll(historyOtherList);
-        repository.saveAll(historyTop5List);
+
+        repository.saveAll(oldHistoryList);
+        repository.saveAll(latestHistoryList);
 
         // when
-        var actualResultList = repository.findTop5ByOrderByIdDesc();
+        var actualResultList = repository.findTop5ByOrderByDateDesc();
 
         // then
-        var expectedHistoryList = historyTop5List.stream()
-                .sorted(Comparator.comparingInt(CurrencyHistory::getId).reversed())
-                .collect(Collectors.toList());
-
-        assertEquals(expectedHistoryList, actualResultList);
+        assertEquals(latestHistoryList.stream().sorted(Comparator.comparing(CurrencyHistory::getId)).collect(Collectors.toList()),
+                actualResultList.stream().sorted(Comparator.comparing(CurrencyHistory::getId)).collect(Collectors.toList())
+        );
     }
 
     @Test
