@@ -23,6 +23,5 @@ public final class Messages {
 
     public static final String EXCHANGE_FORMAT = "%.4f %s -> %.4f %s";
 
-    public static final String LOG_AGGREGATOR_EXCEPTION_MSG = "Unable to get response from target resource. Reason: ";
     public static final String LOG_BANK_DATA_EXCEPTION_MSG = "Cannot create bank data object. Reason: ";
 }

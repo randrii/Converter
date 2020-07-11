@@ -2,9 +2,10 @@ package com.rybka.service.exchange;
 
 import com.rybka.constant.BankAggregatorConstants;
 import com.rybka.constant.Messages;
-import com.rybka.exception.AggregatorConnectionException;
 import com.rybka.exception.ParameterParseException;
 import com.rybka.model.BankData;
+import coresearch.cvurl.io.model.Response;
+import coresearch.cvurl.io.request.CVurl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +13,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -28,24 +24,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BankAggregatorService {
 
-    private final HttpClient httpClient;
+    private final CVurl cVurl;
     private final String DATE_PATTERN = "yyyy-M-dd hh:mm";
 
     public List<BankData> loadExchangeRatesPageFor(String currency) {
-        try {
-            var request = HttpRequest.newBuilder()
-                    .uri(URI.create((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, currency))))
-                    .build();
-            var response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
-            var document = Jsoup.parse(response.body());
-            var trElementRowList = document.select(BankAggregatorConstants.BANK_TABLE_ROW);
+        var document = Jsoup.parse(retrieveResourcePage(currency).getBody());
+        var trElementRowList = document.select(BankAggregatorConstants.BANK_TABLE_ROW);
 
-            return trElementRowList.stream().map(this::parseBankDataRow).collect(Collectors.toList());
-        } catch (IOException | InterruptedException e) {
-            log.error(Messages.LOG_AGGREGATOR_EXCEPTION_MSG + e.getMessage());
-            throw new AggregatorConnectionException(Messages.LOG_AGGREGATOR_EXCEPTION_MSG + e.getMessage());
-        }
+        return trElementRowList.stream().map(this::parseBankDataRow).collect(Collectors.toList());
+    }
+
+    private Response<String> retrieveResourcePage(String currency) {
+        return cVurl
+                .get((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, currency)))
+                .asString().get();
     }
 
     private BankData parseBankDataRow(Element trElement) {
