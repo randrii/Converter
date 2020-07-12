@@ -10,4 +10,6 @@ public class BankAggregatorConstants {
     public static final String BANK_BUY_RATE = "td[class=responsive-hide mfm-text-right mfm-pr0]";
     public static final String BANK_SELL_RATE = "td[class=responsive-hide mfm-text-left mfm-pl0][data-title=У касах банків]";
     public static final String BANK_LAST_UPDATE_DATE = "td[class=respons-collapsed mfcur-table-refreshtime]";
+    public static final String BANK_DATE_SEPARATOR_OLD = ".";
+    public static final String BANK_DATE_SEPARATOR_NEW = "-";
 }
