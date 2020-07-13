@@ -5,7 +5,6 @@ import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidResponseException;
 import com.rybka.exception.ResourceProcessingException;
 import com.rybka.model.BankData;
-import coresearch.cvurl.io.model.Response;
 import coresearch.cvurl.io.request.CVurl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,20 +30,22 @@ public class BankAggregatorService {
 
     public List<BankData> loadExchangeRatesPageFor(String currency) {
         try {
-            var document = Jsoup.parse(retrieveResourcePage(currency).getBody());
+            var document = Jsoup.parse(retrieveHTMLContent(currency));
             var trElementRowList = document.select(BankAggregatorConstants.BANK_TABLE_ROW);
 
             return trElementRowList.stream().map(this::parseBankDataRow).collect(Collectors.toList());
         } catch (Exception exception) {
-            log.error(Messages.RESOURCE_PROCESSING_EXCEPTION_MSG);
-            throw new ResourceProcessingException(Messages.RESOURCE_PROCESSING_EXCEPTION_MSG);
+            log.error(Messages.RESOURCE_PROCESSING_EXCEPTION_MSG + exception.getMessage());
+            throw new ResourceProcessingException(Messages.RESOURCE_PROCESSING_EXCEPTION_MSG + exception.getMessage());
         }
     }
 
-    private Response<String> retrieveResourcePage(String currency) {
-        return Optional.of(cVurl
+    private String retrieveHTMLContent(String currency) {
+        return cVurl
                 .get((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, currency)))
-                .asString().get()).orElseThrow(() -> new InvalidResponseException(Messages.RESPONSE_EXCEPTION_MSG));
+                .asString()
+                .orElseThrow(() -> new InvalidResponseException(Messages.RESPONSE_EXCEPTION_MSG))
+                .getBody();
     }
 
     private BankData parseBankDataRow(Element trElement) {
@@ -57,10 +57,6 @@ public class BankAggregatorService {
         var bankLastUpdateDate = LocalDateTime.parse(trElement.select(BankAggregatorConstants.BANK_LAST_UPDATE_DATE).text()
                 .replace(BankAggregatorConstants.BANK_DATE_SEPARATOR_OLD, BankAggregatorConstants.BANK_DATE_SEPARATOR_NEW), formatter);
 
-        return buildObject(bankName, bankLink, bankBuyRate, bankSellRate, bankLastUpdateDate);
-    }
-
-    private BankData buildObject(String bankName, String bankLink, double bankBuyRate, double bankSellRate, LocalDateTime bankLastUpdateDate) {
         return new BankData(bankName, bankLink, bankBuyRate, bankSellRate, bankLastUpdateDate);
     }
 }

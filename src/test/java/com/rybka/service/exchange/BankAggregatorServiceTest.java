@@ -1,6 +1,8 @@
 package com.rybka.service.exchange;
 
 import com.rybka.constant.BankAggregatorConstants;
+import com.rybka.constant.Messages;
+import com.rybka.exception.InvalidResponseException;
 import com.rybka.exception.ResourceProcessingException;
 import com.rybka.model.BankData;
 import coresearch.cvurl.io.model.Response;
@@ -30,12 +32,13 @@ class BankAggregatorServiceTest {
     @Mock
     private RequestBuilder requestBuilder;
     @Mock
-    private Optional<Response<String>> stringResponse;
+    private Optional<Response<String>> optionalResponse;
     @Mock
     private Response<String> response;
     @InjectMocks
     private BankAggregatorService service;
 
+    @SneakyThrows
     @Test
     public void testOnProperWork() {
 
@@ -53,8 +56,8 @@ class BankAggregatorServiceTest {
                 buildBankData("Альфа-Банк", "/ua/company/alfa-bank/", 26.92, 27.17, lastUpdatedDate));
 
         when(cVurl.get((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, targetCurrency)))).thenReturn(requestBuilder);
-        when(requestBuilder.asString()).thenReturn(stringResponse);
-        when(stringResponse.get()).thenReturn(response);
+        when(requestBuilder.asString()).thenReturn(Optional.of(response));
+        when(optionalResponse.orElseThrow(() -> new InvalidResponseException(Messages.RESPONSE_EXCEPTION_MSG))).thenReturn(response);
         when(response.getBody()).thenReturn(bankAggregatorContent);
 
         // when
@@ -70,11 +73,10 @@ class BankAggregatorServiceTest {
         // given
         var brokenResponseBody = "";
         var targetCurrency = "usd";
-        Response<String> nullResponse = null;
 
         when(cVurl.get((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, targetCurrency)))).thenReturn(requestBuilder);
-        when(requestBuilder.asString()).thenReturn(stringResponse);
-        when(stringResponse.get()).thenReturn(nullResponse);
+        when(requestBuilder.asString()).thenReturn(optionalResponse);
+        when(optionalResponse.orElseThrow(() -> new InvalidResponseException(Messages.RESPONSE_EXCEPTION_MSG))).thenReturn(response);
         when(response.getBody()).thenReturn(brokenResponseBody);
 
         // then
