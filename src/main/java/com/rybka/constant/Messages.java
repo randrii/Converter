@@ -23,4 +23,6 @@ public final class Messages {
 
     public static final String EXCHANGE_FORMAT = "%.4f %s -> %.4f %s";
 
+    public static final String RESPONSE_EXCEPTION_MSG = "Cannot retrieve target resource.";
+    public static final String RESOURCE_PROCESSING_EXCEPTION_MSG = "An error occur while processing the resource. Reason: ";
 }
