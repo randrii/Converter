@@ -15,7 +15,7 @@ import java.util.List;
 public class HistoryController {
     private final CurrencyHistoryRepository repository;
 
-    @GetMapping(produces = "application/json")
+    @GetMapping
     public List<CurrencyHistory> retrieveExchangeHistory() {
         return repository.findTop5ByOrderByDateDesc();
     }
