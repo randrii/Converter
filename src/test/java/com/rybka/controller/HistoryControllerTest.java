@@ -1,11 +1,12 @@
 package com.rybka.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rybka.constant.EndpointConstants;
 import com.rybka.model.CurrencyHistory;
 import com.rybka.repository.CurrencyHistoryRepository;
+import com.rybka.util.MapperUtil;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,38 +16,33 @@ import java.util.Random;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @WebMvcTest(HistoryController.class)
 class HistoryControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
     @MockBean
     private CurrencyHistoryRepository repository;
     private final Random random = new Random();
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    @BeforeEach
-    void setUp() {
-        var controller = new HistoryController(repository);
-        mockMvc = standaloneSetup(controller).build();
-    }
 
     @SneakyThrows
     @Test
     public void testOnProperGetResponse() {
-        var targetUrl = "/history";
+        var targetUrl = EndpointConstants.HISTORY_ROOT_URL;
         var historyList = List.of(buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory(), buildRandomHistory());
 
         when(repository.findTop5ByOrderByDateDesc()).thenReturn(historyList);
 
-        var historyDataJson = mapToJson(historyList);
+        var historyDataJson = MapperUtil.mapToJson(historyList);
 
-        mockMvc.perform(get(targetUrl))
-                .andDo(print())
+        // when
+        var resultActions = mockMvc.perform(get(targetUrl));
+
+        // then
+        resultActions
                 .andExpect(status().isOk())
                 .andExpect(content().string(historyDataJson));
     }
@@ -60,10 +56,5 @@ class HistoryControllerTest {
         var total = currencyRate * currencyAmount;
 
         return new CurrencyHistory(currencyBase, currencyTarget, currencyAmount, currencyRate, total);
-    }
-
-    @SneakyThrows
-    private String mapToJson(List<CurrencyHistory> histories) {
-        return mapper.writeValueAsString(histories);
     }
 }

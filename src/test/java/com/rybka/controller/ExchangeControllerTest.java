@@ -1,13 +1,14 @@
 package com.rybka.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rybka.constant.EndpointConstants;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeRequest;
 import com.rybka.model.ExchangeResultData;
 import com.rybka.service.exchange.ExchangeService;
+import com.rybka.util.MapperUtil;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -16,43 +17,40 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Random;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @WebMvcTest(ExchangeController.class)
 class ExchangeControllerTest {
+
+    @Autowired
     private MockMvc mockMvc;
     @MockBean
     private ExchangeService service;
     private final Random random = new Random();
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    @BeforeEach
-    void setUp() {
-        var controller = new ExchangeController(service);
-        mockMvc = standaloneSetup(controller).build();
-    }
 
     @SneakyThrows
     @Test
     public void testOnProperGetResponse() {
+
+        // given
         var currencyBase = "usd";
         var currencyTarget = "eur";
-        var targetUrl = "/exchange/" + currencyBase + "/" + currencyTarget;
+        var targetUrl = EndpointConstants.EXCHANGE_ROOT_URL + EndpointConstants.EXCHANGE_GET_URL;
         var currencyData = buildCurrencyData();
 
-        when(service.loadCurrencyOf(anyString().toUpperCase(), anyString().toUpperCase())).thenReturn(currencyData);
+        when(service.loadCurrencyOf(currencyBase.toUpperCase(), currencyTarget.toUpperCase())).thenReturn(currencyData);
 
-        var currencyDataJson = mapToJson(currencyData);
+        var currencyDataJson = MapperUtil.mapToJson(currencyData);
 
-        mockMvc.perform(get(targetUrl))
-                .andDo(print())
+        // when
+        var resultActions = mockMvc.perform(get(targetUrl, currencyBase, currencyTarget));
+
+        // then
+        resultActions
                 .andExpect(status().isOk())
                 .andExpect(content().string(currencyDataJson));
     }
@@ -60,23 +58,53 @@ class ExchangeControllerTest {
     @SneakyThrows
     @Test
     public void testOnProperPostResponse() {
+
+        // given
         var base = "USD";
         var type = "BUY";
         var count = 4d;
-        var targetUrl = "/exchange";
+        var targetUrl = EndpointConstants.EXCHANGE_ROOT_URL;
         var exchangeResultData = new ExchangeResultData(base, count, List.of());
         var exchangeRequest = new ExchangeRequest(base, type, count);
-        when(service.retrieveTopCurrency(anyString(), anyString(), anyDouble())).thenReturn(exchangeResultData);
 
-        var exchangeResponseDataJson = mapToJson(exchangeResultData);
-        var exchangeRequestJson = mapToJson(exchangeRequest);
+        when(service.retrieveTopCurrency(base, type, count)).thenReturn(exchangeResultData);
 
-        mockMvc.perform(post(targetUrl)
+        var exchangeResponseDataJson = MapperUtil.mapToJson(exchangeResultData);
+        var exchangeRequestJson = MapperUtil.mapToJson(exchangeRequest);
+
+        // when
+        var resultActions = mockMvc.perform(post(targetUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(exchangeRequestJson))
-                .andDo(print())
+                .content(exchangeRequestJson));
+
+        // then
+        resultActions
                 .andExpect(status().isOk())
                 .andExpect(content().string(exchangeResponseDataJson));
+    }
+
+    @SneakyThrows
+    @Test
+    public void testOnPostBrokenJsonParam() {
+
+        // given
+        var base = "USD";
+        var type = "BUY";
+        var count = 4d;
+        var targetUrl = EndpointConstants.EXCHANGE_ROOT_URL;
+        var exchangeResultData = new ExchangeResultData(base, count, List.of());
+        var brokenExchangeRequestJson = "";
+
+        when(service.retrieveTopCurrency(base, type, count)).thenReturn(exchangeResultData);
+
+        // when
+        var resultActions = mockMvc.perform(post(targetUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(brokenExchangeRequestJson));
+
+        // then
+        resultActions
+                .andExpect(status().isBadRequest());
     }
 
     private CurrencyData buildCurrencyData() {
@@ -86,10 +114,5 @@ class ExchangeControllerTest {
         var rate = random.nextDouble();
 
         return new CurrencyData(base, target, rate);
-    }
-
-    @SneakyThrows
-    private <T> String mapToJson(T data) {
-        return mapper.writeValueAsString(data);
     }
 }

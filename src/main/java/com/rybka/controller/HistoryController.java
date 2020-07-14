@@ -1,5 +1,6 @@
 package com.rybka.controller;
 
+import com.rybka.constant.EndpointConstants;
 import com.rybka.model.CurrencyHistory;
 import com.rybka.repository.CurrencyHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("history")
+@RequestMapping(EndpointConstants.HISTORY_ROOT_URL)
 @RequiredArgsConstructor
 public class HistoryController {
     private final CurrencyHistoryRepository repository;
