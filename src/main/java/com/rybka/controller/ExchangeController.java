@@ -1,5 +1,6 @@
 package com.rybka.controller;
 
+import com.rybka.constant.EndpointConstants;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.ExchangeRequest;
 import com.rybka.model.ExchangeResultData;
@@ -8,12 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("exchange")
+@RequestMapping(EndpointConstants.EXCHANGE_ROOT_URL)
 @RequiredArgsConstructor
 public class ExchangeController {
     private final ExchangeService service;
 
-    @GetMapping(path = "/{base}/{target}")
+    @GetMapping(path = EndpointConstants.EXCHANGE_GET_URL)
     public CurrencyData retrieveExchangeRates(@PathVariable String base, @PathVariable String target) {
         return service.loadCurrencyOf(base.toUpperCase(), target.toUpperCase());
     }
