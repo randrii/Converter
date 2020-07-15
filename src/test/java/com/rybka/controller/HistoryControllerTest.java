@@ -38,11 +38,8 @@ class HistoryControllerTest {
 
         var historyDataJson = MapperUtil.mapToJson(historyList);
 
-        // when
-        var resultActions = mockMvc.perform(get(targetUrl));
-
-        // then
-        resultActions
+        // expects
+        mockMvc.perform(get(targetUrl))
                 .andExpect(status().isOk())
                 .andExpect(content().string(historyDataJson));
     }

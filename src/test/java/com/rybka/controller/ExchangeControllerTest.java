@@ -46,11 +46,8 @@ class ExchangeControllerTest {
 
         var currencyDataJson = MapperUtil.mapToJson(currencyData);
 
-        // when
-        var resultActions = mockMvc.perform(get(targetUrl, currencyBase, currencyTarget));
-
-        // then
-        resultActions
+        // expects
+        mockMvc.perform(get(targetUrl, currencyBase, currencyTarget))
                 .andExpect(status().isOk())
                 .andExpect(content().string(currencyDataJson));
     }
@@ -72,13 +69,10 @@ class ExchangeControllerTest {
         var exchangeResponseDataJson = MapperUtil.mapToJson(exchangeResultData);
         var exchangeRequestJson = MapperUtil.mapToJson(exchangeRequest);
 
-        // when
-        var resultActions = mockMvc.perform(post(targetUrl)
+        // expects
+        mockMvc.perform(post(targetUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(exchangeRequestJson));
-
-        // then
-        resultActions
+                .content(exchangeRequestJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string(exchangeResponseDataJson));
     }
@@ -97,13 +91,10 @@ class ExchangeControllerTest {
 
         when(service.retrieveTopCurrency(base, type, count)).thenReturn(exchangeResultData);
 
-        // when
-        var resultActions = mockMvc.perform(post(targetUrl)
+        // expects
+        mockMvc.perform(post(targetUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(brokenExchangeRequestJson));
-
-        // then
-        resultActions
+                .content(brokenExchangeRequestJson))
                 .andExpect(status().isBadRequest());
     }
 

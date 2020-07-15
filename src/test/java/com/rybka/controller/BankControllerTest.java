@@ -43,11 +43,8 @@ class BankControllerTest {
 
         var bankDataJson = MapperUtil.mapToJson(bankDataList);
 
-        // when
-        var resultActions = mockMvc.perform(get(targetUrl, currencyBase));
-
-        // then
-        resultActions
+        // expects
+        mockMvc.perform(get(targetUrl, currencyBase))
                 .andExpect(status().isOk())
                 .andExpect(content().string(bankDataJson));
     }
@@ -63,11 +60,8 @@ class BankControllerTest {
 
         when(service.loadExchangeRatesPageFor(currencyBase)).thenReturn(emptyBankDataList);
 
-        // when
-        var resultActions = mockMvc.perform(get(targetUrl, currencyBase));
-
-        // then
-        resultActions
+        // expects
+        mockMvc.perform(get(targetUrl, currencyBase))
                 .andExpect(status().isOk())
                 .andExpect(content().string(emptyBankDataList.toString()));
     }
