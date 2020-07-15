@@ -5,6 +5,8 @@ import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidResponseException;
 import com.rybka.exception.ResourceProcessingException;
 import com.rybka.model.BankData;
+import com.rybka.model.BankResponse;
+import com.rybka.util.RateCalculator;
 import coresearch.cvurl.io.model.Response;
 import coresearch.cvurl.io.request.CVurl;
 import coresearch.cvurl.io.request.RequestBuilder;
@@ -50,10 +52,12 @@ class BankAggregatorServiceTest {
         var lastUpdatedDateString = "2020-07-11 08:15";
         var formatter = DateTimeFormatter.ofPattern(datePattern);
         var lastUpdatedDate = LocalDateTime.parse(lastUpdatedDateString, formatter);
-        var expectedBankDataList = List.of(
+        var bankDataList = List.of(
                 buildBankData("Приватбанк", "/ua/company/privatbank/", 26.8, 27.25, lastUpdatedDate),
                 buildBankData("Райффайзен Банк Аваль", "/ua/company/aval/", 26.7, 27.15, lastUpdatedDate),
                 buildBankData("Альфа-Банк", "/ua/company/alfa-bank/", 26.92, 27.17, lastUpdatedDate));
+        var summary = RateCalculator.calculateStatisticalRate(bankDataList);
+        var expectedResponse = new BankResponse(bankDataList, summary);
 
         when(cVurl.get((String.format(BankAggregatorConstants.BANK_AGGREGATOR_URL, targetCurrency)))).thenReturn(requestBuilder);
         when(requestBuilder.asString()).thenReturn(Optional.of(response));
@@ -61,10 +65,10 @@ class BankAggregatorServiceTest {
         when(response.getBody()).thenReturn(bankAggregatorContent);
 
         // when
-        var bankDataList = service.loadExchangeRatesPageFor(targetCurrency);
+        var actualResponse = service.loadExchangeRatesWithSummary(targetCurrency);
 
         // then
-        Assertions.assertEquals(expectedBankDataList, bankDataList);
+        Assertions.assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
@@ -80,7 +84,7 @@ class BankAggregatorServiceTest {
         when(response.getBody()).thenReturn(brokenResponseBody);
 
         // then
-        Assertions.assertThrows(ResourceProcessingException.class, () -> service.loadExchangeRatesPageFor(targetCurrency));
+        Assertions.assertThrows(ResourceProcessingException.class, () -> service.loadExchangeRatesWithSummary(targetCurrency));
     }
 
     private BankData buildBankData(String name, String link, double buy, double sell, LocalDateTime lastUpdated) {
