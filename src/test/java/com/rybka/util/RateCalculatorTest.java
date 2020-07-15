@@ -32,7 +32,8 @@ class RateCalculatorTest {
     public void testOnInvalidValue() {
 
         // given
-        List<BankData> bankDataList = List.of();
+        var emptyBankData = new BankData("bank", "link", 0, 0, LocalDateTime.now());
+        var bankDataList = List.of(emptyBankData);
         var expectedValue = 0;
         var expectedSummary = new StatisticalRate(expectedValue, expectedValue, expectedValue, expectedValue, expectedValue, expectedValue);
 
