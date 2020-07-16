@@ -5,6 +5,8 @@ import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidResponseException;
 import com.rybka.exception.ResourceProcessingException;
 import com.rybka.model.BankData;
+import com.rybka.model.BankResponse;
+import com.rybka.util.RateCalculator;
 import coresearch.cvurl.io.request.CVurl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,14 @@ public class BankAggregatorService {
     private String DATE_PATTERN = "yyyy-MM-dd HH:mm";
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
-    public List<BankData> loadExchangeRatesPageFor(String currency) {
+    public BankResponse loadExchangeRatesWithSummary(String currency) {
+        var banks = loadExchangeRatesPageFor(currency);
+        var summary = RateCalculator.calculateStatisticalRate(banks);
+
+        return new BankResponse(banks, summary);
+    }
+
+    private List<BankData> loadExchangeRatesPageFor(String currency) {
         try {
             var document = Jsoup.parse(retrieveHTMLContent(currency));
             var trElementRowList = document.select(BankAggregatorConstants.BANK_TABLE_ROW);

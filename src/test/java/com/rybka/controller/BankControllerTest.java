@@ -2,8 +2,10 @@ package com.rybka.controller;
 
 import com.rybka.constant.EndpointConstants;
 import com.rybka.model.BankData;
+import com.rybka.model.BankResponse;
 import com.rybka.service.exchange.BankAggregatorService;
 import com.rybka.util.MapperUtil;
+import com.rybka.util.RateCalculator;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +40,16 @@ class BankControllerTest {
         var targetUrl = EndpointConstants.BANK_ROOT_URL + EndpointConstants.BANK_GET_URL;
 
         var bankDataList = List.of(buildBankData(), buildBankData(), buildBankData());
+        var bankListWithSummary = new BankResponse(bankDataList, RateCalculator.calculateStatisticalRate(bankDataList));
 
-        when(service.loadExchangeRatesPageFor(currencyBase)).thenReturn(bankDataList);
+        when(service.loadExchangeRatesWithSummary(currencyBase)).thenReturn(bankListWithSummary);
 
-        var bankDataJson = MapperUtil.mapToJson(bankDataList);
+        var expectedResponse = MapperUtil.mapToJson(bankListWithSummary);
 
         // expects
         mockMvc.perform(get(targetUrl, currencyBase))
                 .andExpect(status().isOk())
-                .andExpect(content().string(bankDataJson));
+                .andExpect(content().string(expectedResponse));
     }
 
     @SneakyThrows
@@ -57,13 +60,16 @@ class BankControllerTest {
         var currencyBase = "usa";
         var targetUrl = EndpointConstants.BANK_ROOT_URL + EndpointConstants.BANK_GET_URL;
         List<BankData> emptyBankDataList = List.of();
+        var bankListWithSummary = new BankResponse(emptyBankDataList, RateCalculator.calculateStatisticalRate(emptyBankDataList));
 
-        when(service.loadExchangeRatesPageFor(currencyBase)).thenReturn(emptyBankDataList);
+        when(service.loadExchangeRatesWithSummary(currencyBase)).thenReturn(bankListWithSummary);
+
+        var expectedResponse = MapperUtil.mapToJson(bankListWithSummary);
 
         // expects
         mockMvc.perform(get(targetUrl, currencyBase))
                 .andExpect(status().isOk())
-                .andExpect(content().string(emptyBankDataList.toString()));
+                .andExpect(content().string(expectedResponse));
     }
 
     private BankData buildBankData() {
