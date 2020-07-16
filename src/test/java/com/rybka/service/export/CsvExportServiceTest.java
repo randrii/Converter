@@ -3,7 +3,7 @@ package com.rybka.service.export;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.rybka.configuration.ExportProperty;
+import com.rybka.properties.ExportProperty;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.SneakyThrows;

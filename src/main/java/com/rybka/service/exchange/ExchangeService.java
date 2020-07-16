@@ -1,11 +1,11 @@
 package com.rybka.service.exchange;
 
-import com.rybka.configuration.ExchangeProperty;
+import com.rybka.properties.ExchangeProperty;
 import com.rybka.constant.ExchangeType;
 import com.rybka.constant.Messages;
 import com.rybka.exception.MissedBaseCurrencyException;
 import com.rybka.model.CurrencyData;
-import com.rybka.model.ExchangeResponse;
+import com.rybka.model.dto.ExchangeResponse;
 import com.rybka.model.ExchangeResultData;
 import com.rybka.model.TopCurrencyData;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;

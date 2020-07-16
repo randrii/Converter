@@ -1,11 +1,11 @@
 package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.configuration.PrimeExchangeConnectorProperties;
+import com.rybka.properties.PrimeExchangeConnectorProperties;
 import com.rybka.constant.ExchangeSource;
 import com.rybka.constant.Messages;
 import com.rybka.exception.CurrencyAPICallException;
-import com.rybka.model.ExchangeResponse;
+import com.rybka.model.dto.ExchangeResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

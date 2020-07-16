@@ -1,6 +1,6 @@
 package com.rybka.command;
 
-import com.rybka.configuration.ExportProperty;
+import com.rybka.properties.ExportProperty;
 import com.rybka.constant.CommandConstants;
 import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidPropertyException;

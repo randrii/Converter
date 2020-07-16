@@ -1,7 +1,7 @@
 package com.rybka.controller;
 
 import com.rybka.constant.EndpointConstants;
-import com.rybka.model.BankResponse;
+import com.rybka.model.dto.BankResponse;
 import com.rybka.service.exchange.BankAggregatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

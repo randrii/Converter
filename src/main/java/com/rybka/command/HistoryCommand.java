@@ -3,6 +3,7 @@ package com.rybka.command;
 import com.rybka.constant.CommandConstants;
 import com.rybka.constant.Messages;
 import com.rybka.repository.CurrencyHistoryRepository;
+import com.rybka.util.FormatPrintUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,8 @@ public class HistoryCommand implements Command {
     public void execute() {
         try {
             var histories = currencyHistoryRepository.findTop5ByOrderByDateDesc();
-            histories.forEach(System.out::println);
+
+            FormatPrintUtil.printHistory(histories);
         } catch (Exception exception) {
             log.error(Messages.LOG_HISTORY_ERROR_MSG + exception.getMessage());
         }

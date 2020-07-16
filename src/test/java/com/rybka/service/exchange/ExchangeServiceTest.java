@@ -1,8 +1,8 @@
 package com.rybka.service.exchange;
 
-import com.rybka.configuration.ExchangeProperty;
+import com.rybka.properties.ExchangeProperty;
 import com.rybka.exception.MissedBaseCurrencyException;
-import com.rybka.model.ExchangeResponse;
+import com.rybka.model.dto.ExchangeResponse;
 import com.rybka.service.connector.ExchangeRateConnector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

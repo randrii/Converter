@@ -1,4 +1,4 @@
-package com.rybka.model;
+package com.rybka.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;

@@ -1,4 +1,4 @@
-package com.rybka.model;
+package com.rybka.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
