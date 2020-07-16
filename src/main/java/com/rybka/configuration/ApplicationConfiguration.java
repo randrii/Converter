@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidPropertyException;
+import com.rybka.properties.ExchangeProperty;
 import com.rybka.service.connector.BaseCurrencyExchangeConnector;
 import com.rybka.util.MapSearchUtil;
 import coresearch.cvurl.io.request.CVurl;

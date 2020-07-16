@@ -1,6 +1,6 @@
 package com.rybka.command;
 
-import com.rybka.configuration.ExportProperty;
+import com.rybka.properties.ExportProperty;
 import com.rybka.exception.InvalidPropertyException;
 import com.rybka.repository.CurrencyHistoryRepository;
 import com.rybka.service.export.ConsoleExportService;

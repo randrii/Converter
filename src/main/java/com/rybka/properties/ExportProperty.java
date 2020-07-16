@@ -1,4 +1,4 @@
-package com.rybka.configuration;
+package com.rybka.properties;
 
 import lombok.Getter;
 import lombok.Setter;

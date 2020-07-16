@@ -13,6 +13,8 @@ public class Application {
         var context = SpringApplication.run(Application.class, args);
         var view = context.getBean(ExchangeView.class);
 
+        view.showMenuOnStartup();
+
         while (true) {
             view.showView();
         }

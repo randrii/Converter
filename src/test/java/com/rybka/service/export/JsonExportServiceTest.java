@@ -2,7 +2,7 @@ package com.rybka.service.export;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rybka.configuration.ExportProperty;
+import com.rybka.properties.ExportProperty;
 import com.rybka.exception.ExportFailureException;
 import com.rybka.model.CurrencyHistory;
 import lombok.SneakyThrows;

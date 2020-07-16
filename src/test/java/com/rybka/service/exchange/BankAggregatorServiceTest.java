@@ -5,7 +5,7 @@ import com.rybka.constant.Messages;
 import com.rybka.exception.InvalidResponseException;
 import com.rybka.exception.ResourceProcessingException;
 import com.rybka.model.BankData;
-import com.rybka.model.BankResponse;
+import com.rybka.model.dto.BankResponse;
 import com.rybka.util.RateCalculator;
 import coresearch.cvurl.io.model.Response;
 import coresearch.cvurl.io.request.CVurl;

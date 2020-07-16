@@ -2,10 +2,10 @@ package com.rybka.service.connector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.rybka.configuration.PrimeExchangeConnectorProperties;
+import com.rybka.properties.PrimeExchangeConnectorProperties;
 import com.rybka.configuration.WireMockInitializer;
 import com.rybka.exception.CurrencyAPICallException;
-import com.rybka.model.ExchangeResponse;
+import com.rybka.model.dto.ExchangeResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
 package com.rybka.service.connector;
 
-import com.rybka.constant.CurrencyAPIConstants;
 import com.rybka.exception.CurrencyAPICallException;
-import com.rybka.model.ExchangeResponse;
+import com.rybka.model.dto.ExchangeResponse;
+import com.rybka.properties.ExchangeConnectorProperty;
 import coresearch.cvurl.io.request.CVurl;
 import coresearch.cvurl.io.request.RequestBuilder;
 import org.junit.jupiter.api.Test;
@@ -23,6 +23,8 @@ class ExchangeRateConnectorTest {
     @Mock
     private CVurl cVurl;
     @Mock
+    private ExchangeConnectorProperty connectorProperty;
+    @Mock
     private RequestBuilder requestBuilder;
     @InjectMocks
     private ExchangeRateConnector connector;
@@ -35,11 +37,13 @@ class ExchangeRateConnectorTest {
         var currencyTarget = "EUR";
         var currencyRate = 0.89;
         var response = new ExchangeResponse();
+        var testUrl = "http://example.com";
 
         response.setBase(currencyBase);
         response.setRates(Map.of(currencyTarget, currencyRate));
 
-        when(cVurl.get(String.format(CurrencyAPIConstants.EXCHANGE_RATE_API_URL, currencyBase))).thenReturn(requestBuilder);
+        when(connectorProperty.getUrl()).thenReturn(testUrl);
+        when(cVurl.get(String.format(connectorProperty.getUrl(), currencyBase))).thenReturn(requestBuilder);
         when(requestBuilder.asObject(ExchangeResponse.class)).thenReturn(response);
 
         // when
@@ -56,10 +60,12 @@ class ExchangeRateConnectorTest {
         var incorrectCurrencyBase = "USDD";
         var currencyTarget = "EUR";
         var response = new ExchangeResponse();
+        var testUrl = "http://example.com";
 
         response.setBase(incorrectCurrencyBase);
         response.setRates(Map.of());
 
+        when(connectorProperty.getUrl()).thenReturn(testUrl);
         when(cVurl.get(Mockito.anyString())).thenReturn(requestBuilder);
         when(requestBuilder.asObject(ExchangeResponse.class)).thenReturn(response);
 
@@ -75,7 +81,9 @@ class ExchangeRateConnectorTest {
 
         // given
         var currencyTarget = "EUR";
+        var testUrl = "http://example.com";
 
+        when(connectorProperty.getUrl()).thenReturn(testUrl);
         when(cVurl.get(Mockito.anyString())).thenReturn(null);
 
         // then

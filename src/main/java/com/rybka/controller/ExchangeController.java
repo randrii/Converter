@@ -2,7 +2,7 @@ package com.rybka.controller;
 
 import com.rybka.constant.EndpointConstants;
 import com.rybka.model.CurrencyData;
-import com.rybka.model.ExchangeRequest;
+import com.rybka.model.dto.ExchangeRequest;
 import com.rybka.model.ExchangeResultData;
 import com.rybka.service.exchange.ExchangeService;
 import lombok.RequiredArgsConstructor;

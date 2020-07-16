@@ -1,5 +1,7 @@
-package com.rybka.model;
+package com.rybka.model.dto;
 
+import com.rybka.model.BankData;
+import com.rybka.model.StatisticalRate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
