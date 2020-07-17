@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Banks | Converter</title>
+</head>
+<body>
+<h1>Currency rates of Ukrainian banks</h1>
+<table>
+    <tr>
+        <td><a href="/banks?base=usd">USD</a></td>
+        <td><a href="/banks?base=eur">EUR</a></td>
+        <td><a href="/banks?base=pln">PLN</a></td>
+        <td><a href="/banks?base=rub">RUB</a></td>
+    </tr>
+</table>
+<table>
+    <thead>
+    <tr>
+        <th>Bank</th>
+        <th>Buy</th>
+        <th>Sell</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="bank:${banks}">
+        <td><a th:href="${bank.getLink()}" th:text="${bank.getName()}"/></td>
+        <td th:text="${bank.getBuy()}"/>
+        <td th:text="${bank.getSell()}"/>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td><strong>Min</strong></td>
+        <td th:text="${stats.getMinBuyRate()}"/>
+        <td th:text="${stats.getMinSellRate()}"/>
+    </tr>
+    <tr>
+        <td><strong>Max</strong></td>
+        <td th:text="${stats.getMaxBuyRate()}"/>
+        <td th:text="${stats.getMaxSellRate()}"/>
+    </tr>
+    <tr>
+        <td><strong>Avg</strong></td>
+        <td th:text="${stats.getAvgBuyRate()}"/>
+        <td th:text="${stats.getAvgSellRate()}"/>
+    </tr>
+    </tfoot>
+</table>
+</body>
+</html>

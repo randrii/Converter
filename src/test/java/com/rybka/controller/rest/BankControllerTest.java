@@ -1,6 +1,7 @@
-package com.rybka.controller;
+package com.rybka.controller.rest;
 
 import com.rybka.constant.EndpointConstants;
+import com.rybka.controller.rest.BankController;
 import com.rybka.model.BankData;
 import com.rybka.model.dto.BankResponse;
 import com.rybka.service.exchange.BankAggregatorService;

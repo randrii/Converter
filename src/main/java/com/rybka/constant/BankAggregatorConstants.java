@@ -2,6 +2,7 @@ package com.rybka.constant;
 
 public class BankAggregatorConstants {
     public static final String BANK_AGGREGATOR_URL = "https://minfin.com.ua/ua/currency/banks/%s/";
+    public static final String BANK_ROOT_URL = "https://minfin.com.ua/";
     public static final String BANK_TABLE_ROW = "tr[class=row--collapse]";
     public static final String BANK_HEADER = "a[class=mfm-black-link]";
     public static final String BANK_LINK = "td[class=js-ex-rates mfcur-table-bankname]";

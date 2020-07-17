@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Exchange | Converter</title>
+</head>
+<body>
+<h1>Currency Converter</h1>
+<form action="#" th:action="@{/result}" th:method="POST" th:object="${exchangeRequest}" method="post">
+    <div>
+        <p>Want to:
+            <select th:field="*{type}">
+                <option th:value="SELL">SELL</option>
+                <option th:value="BUY">BUY</option>
+            </select>
+        </p>
+        <p><label>
+            Count
+            <input type="number" min="0" th:field="*{count}"/>
+        </label>
+            <select th:field="*{base}">
+                <option th:value="USD">USD</option>
+                <option th:value="EUR">EUR</option>
+                <option th:value="UAH">UAH</option>
+                <option th:value="PLN">PLN</option>
+                <option th:value="RUB">RUB</option>
+            </select>
+        </p>
+    </div>
+    <input type="submit" value="Exchange"/>
+</form>
+<div>
+    <p>Result</p>
+    <table>
+        <tbody>
+        <tr th:each="currency:${topCurrency}">
+            <td th:text="${currency.getTotal()}"/>
+            <td th:text="${currency.getName()}"/>
+            <td th:text="${currency.getRate()}"/>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<hr>
+<div>
+    <p>Exchange history</p>
+    <table>
+        <thead>
+        <tr>
+            <th>Currency</th>
+            <th>Exchange type</th>
+            <th>Count</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="history:${histories}">
+            <td th:text="${history.getBase()}"/>
+            <td th:text="${history.getTarget()}"/>
+            <td th:text="${history.getAmount()}"/>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
