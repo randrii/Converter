@@ -1,7 +1,6 @@
 package com.rybka.controller.rest;
 
 import com.rybka.constant.EndpointConstants;
-import com.rybka.controller.rest.ExchangeController;
 import com.rybka.model.CurrencyData;
 import com.rybka.model.dto.ExchangeRequest;
 import com.rybka.model.ExchangeResultData;

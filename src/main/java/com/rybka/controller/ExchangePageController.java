@@ -1,54 +1,64 @@
 package com.rybka.controller;
 
+import com.rybka.constant.Attribute;
 import com.rybka.constant.EndpointConstants;
-import com.rybka.model.CurrencyHistory;
+import com.rybka.constant.Pages;
+import com.rybka.model.ExchangeHistory;
+import com.rybka.model.TopCurrencyData;
 import com.rybka.model.dto.ExchangeRequest;
-import com.rybka.repository.CurrencyHistoryRepository;
+import com.rybka.repository.ExchangeHistoryRepository;
 import com.rybka.service.exchange.ExchangeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(value = {EndpointConstants.ROOT_URL, EndpointConstants.EXCHANGE_ROOT_URL})
 @RequiredArgsConstructor
 public class ExchangePageController {
     private final ExchangeService service;
-    private final CurrencyHistoryRepository repository;
+    private final ExchangeHistoryRepository repository;
 
     @GetMapping
     public String showExchangePage(Model model) {
-        model.addAttribute("exchangeRequest", new ExchangeRequest());
+        model.addAttribute(Attribute.EXCHANGE_REQUEST, new ExchangeRequest());
 
-        return "exchangePage";
+        return Pages.EXCHANGE_PAGE;
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    @GetMapping(EndpointConstants.ERROR_ROOT_URL)
+    public String test(Model model, NullPointerException e) {
+        model.addAttribute(Attribute.ERROR_ATTRIBUTE, e);
+
+        return Pages.ERROR_PAGE;
     }
 
     @PostMapping(EndpointConstants.EXCHANGE_POST_URL)
     public String calculateExchange(@ModelAttribute ExchangeRequest exchangeRequest, Model model) {
-        var data = service.retrieveTopCurrency(exchangeRequest.getBase(), exchangeRequest.getType(), exchangeRequest.getCount());
-        var topCurrencyList = data.getTopCurrencyDataList();
-        var history = convertToHistory(exchangeRequest);
+        var topCurrencyList = retrieveTopCurrencyData(exchangeRequest);
 
-        repository.save(history);
+        saveExchangeHistory(exchangeRequest);
 
         var historyList = repository.findTop5ByOrderByDateDesc();
 
-        model.addAttribute("topCurrency", topCurrencyList);
-        model.addAttribute("histories", historyList);
+        model.addAttribute(Attribute.EXCHANGE_TOP_CURRENCY, topCurrencyList);
+        model.addAttribute(Attribute.EXCHANGE_HISTORY, historyList);
 
-        return "exchangePage";
+        return Pages.EXCHANGE_PAGE;
     }
 
-    private CurrencyHistory convertToHistory(ExchangeRequest exchangeRequest) {
-        var history = new CurrencyHistory();
-        history.setBase(exchangeRequest.getBase());
-        history.setAmount(exchangeRequest.getCount());
-        history.setTarget(exchangeRequest.getType());
+    private List<TopCurrencyData> retrieveTopCurrencyData(ExchangeRequest request) {
+        var data = service.retrieveTopCurrency(request.getBase(), request.getType(), request.getCount());
+        return data.getTopCurrencyDataList();
+    }
 
-        return history;
+    private void saveExchangeHistory(ExchangeRequest request) {
+        var history = new ExchangeHistory(request.getBase(), request.getType(), request.getCount());
+
+        repository.save(history);
     }
 }

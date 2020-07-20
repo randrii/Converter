@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>Currency Converter</h1>
-<form action="#" th:action="@{/result}" th:method="POST" th:object="${exchangeRequest}" method="post">
+<form action="#" th:action="@{/rates}" th:method="POST" th:object="${exchangeRequest}" method="post">
     <div>
         <p>Want to:
             <select th:field="*{type}">
@@ -55,8 +55,8 @@
         <tbody>
         <tr th:each="history:${histories}">
             <td th:text="${history.getBase()}"/>
-            <td th:text="${history.getTarget()}"/>
-            <td th:text="${history.getAmount()}"/>
+            <td th:text="${history.getType()}"/>
+            <td th:text="${history.getCount()}"/>
         </tr>
         </tbody>
     </table>
