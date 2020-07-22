@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error | Converter</title>
+</head>
+<body>
+<div>
+    <p>Error was occurred when processing entered data. Possible reason: </p>
+    <p th:text="${exception}"></p>
+</div>
+<a href="/exchange">Main</a>
+</body>
+</html>

@@ -59,7 +59,7 @@ public class BankAggregatorService {
 
     private BankData parseBankDataRow(Element trElement) {
         var bankName = trElement.select(BankAggregatorConstants.BANK_HEADER).text();
-        var bankLink = trElement.select(BankAggregatorConstants.BANK_LINK)
+        var bankLink = BankAggregatorConstants.BANK_ROOT_URL + trElement.select(BankAggregatorConstants.BANK_LINK)
                 .select(BankAggregatorConstants.BANK_LINK_ATTRIBUTE).attr(BankAggregatorConstants.BANK_LINK_HREF);
         var bankBuyRate = Double.parseDouble(trElement.select(BankAggregatorConstants.BANK_BUY_RATE).text());
         var bankSellRate = Double.parseDouble(trElement.select(BankAggregatorConstants.BANK_SELL_RATE).text());

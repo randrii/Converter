@@ -1,4 +1,4 @@
-package com.rybka.controller;
+package com.rybka.controller.rest;
 
 import com.rybka.constant.EndpointConstants;
 import com.rybka.model.BankData;
