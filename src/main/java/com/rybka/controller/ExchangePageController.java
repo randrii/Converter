@@ -31,7 +31,7 @@ public class ExchangePageController {
 
     @ExceptionHandler(NullPointerException.class)
     @GetMapping(EndpointConstants.ERROR_ROOT_URL)
-    public String test(Model model, NullPointerException e) {
+    public String test(Model model, Exception e) {
         model.addAttribute(Attribute.ERROR_ATTRIBUTE, e);
 
         return Pages.ERROR_PAGE;
